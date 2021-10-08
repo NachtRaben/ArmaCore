@@ -55,8 +55,13 @@ public class GuildManagerImpl implements GuildManager {
         DSLContext context = DSL.using(conn);
         GuildsRecord result = context.selectFrom(Tables.GUILDS).where(Tables.GUILDS.ID.eq(guildId)).fetchOne();
         if (result != null) {
-            JsonFormat<MinimalJsonWriter> format = JsonFormat.minimalInstance();
-            return format.createParser().parse(result.getConfig().data());
+            try {
+                JsonFormat<MinimalJsonWriter> format = JsonFormat.minimalInstance();
+                return format.createParser().parse(result.getConfig().data());
+            } catch (Exception e) {
+                TomlFormat format = TomlFormat.instance();
+                return format.createParser().parse(result.getConfig().data());
+            }
         }
         return JsonFormat.minimalInstance().createConfig();
     };
@@ -79,6 +84,12 @@ public class GuildManagerImpl implements GuildManager {
         if (core.armaConfig().isDatabaseEnabled()) {
             initializeDatabase();
         }
+        logger.warn("Starting conversion...");
+        core.shardManager().getGuilds().forEach(g -> {
+            NestedConfig config = (NestedConfig) getConfigFor(g);
+            config.save();
+        });
+        logger.warn("Conversion finished!");
         return this;
     }
 
