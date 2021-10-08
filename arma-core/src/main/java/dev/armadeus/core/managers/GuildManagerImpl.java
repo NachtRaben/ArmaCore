@@ -55,13 +55,8 @@ public class GuildManagerImpl implements GuildManager {
         DSLContext context = DSL.using(conn);
         GuildsRecord result = context.selectFrom(Tables.GUILDS).where(Tables.GUILDS.ID.eq(guildId)).fetchOne();
         if (result != null) {
-            try {
-                JsonFormat<MinimalJsonWriter> format = JsonFormat.minimalInstance();
-                return format.createParser().parse(result.getConfig().data());
-            } catch (Exception e) {
-                TomlFormat format = TomlFormat.instance();
-                return format.createParser().parse(result.getConfig().data());
-            }
+            JsonFormat<MinimalJsonWriter> format = JsonFormat.minimalInstance();
+            return format.createParser().parse(result.getConfig().data());
         }
         return JsonFormat.minimalInstance().createConfig();
     };

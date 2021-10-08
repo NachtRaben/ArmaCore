@@ -24,8 +24,6 @@ import dev.armadeus.core.command.ShutdownCommand;
 import dev.armadeus.core.command.SlashCommands;
 import dev.armadeus.core.command.UptimeCommand;
 import dev.armadeus.core.config.ArmaConfigImpl;
-import dev.armadeus.core.config.GuildConfigImpl;
-import dev.armadeus.core.config.NestedConfig;
 import dev.armadeus.core.managers.ExecutorServiceEventManager;
 import dev.armadeus.core.managers.GuildManagerImpl;
 import dev.armadeus.core.managers.InstanceManager;
@@ -104,12 +102,6 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
         loadPlugins();
         loadGuildManager();
         loadJda();
-        logger.warn("Starting conversion...");
-        shardManager().getGuilds().forEach(g -> {
-            GuildConfigImpl config = (GuildConfigImpl) guildManager.getConfigFor(g);
-            ((NestedConfig) config.getConfig()).save();
-        });
-        logger.warn("Conversion finished!");
         loadCommandManager();
         if (armaConfig.isDatabaseEnabled()) {
             instanceManager = new InstanceManager(this);
