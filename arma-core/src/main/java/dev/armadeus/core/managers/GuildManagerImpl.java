@@ -84,12 +84,6 @@ public class GuildManagerImpl implements GuildManager {
         if (core.armaConfig().isDatabaseEnabled()) {
             initializeDatabase();
         }
-        logger.warn("Starting conversion...");
-        core.shardManager().getGuilds().forEach(g -> {
-            NestedConfig config = (NestedConfig) getConfigFor(g);
-            config.save();
-        });
-        logger.warn("Conversion finished!");
         return this;
     }
 
