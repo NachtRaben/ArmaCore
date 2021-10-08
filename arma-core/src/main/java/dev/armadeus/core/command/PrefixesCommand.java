@@ -19,17 +19,19 @@ public class PrefixesCommand extends DiscordCommand {
     public void about(DiscordCommandIssuer user) {
         EmbedBuilder builder = EmbedUtils.newBuilder(user);
         StringBuilder sb = new StringBuilder();
-        sb.append("`");
         if (user.isFromGuild()) {
             GuildConfig config = user.getGuildConfig();
-            if (!config.getPrefixes().isEmpty())
-                sb.append(config.getPrefixes());
-            else
-                sb.append(core.armaConfig().getDefaultPrefixes());
+            if (!config.getPrefixes().isEmpty()) {
+                for (String prefix : config.getPrefixes())
+                    sb.append("`").append(prefix).append("`");
+            } else {
+                for (String prefix : core.armaConfig().getDefaultPrefixes())
+                    sb.append("`").append(prefix).append("`");
+            }
         } else {
-            sb.append(core.armaConfig().getDefaultPrefixes());
+            for (String prefix : core.armaConfig().getDefaultPrefixes())
+                sb.append("`").append(prefix).append("`");
         }
-        sb.append("`");
         builder.addField("Prefixes", sb.toString(), false);
         user.sendMessage(builder.build());
     }
