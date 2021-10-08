@@ -363,6 +363,13 @@ public class JDACommandManager extends ArmaCommandManager<
         if (args.length == 0) {
             return;
         }
+
+        String cmd = args[0].toLowerCase(Locale.ENGLISH);
+        JDARootCommand rootCommand = this.commands.get(cmd);
+        if (rootCommand == null) {
+            return;
+        }
+
         if (args.length > 1) {
             List<String> reprocessed = new ArrayList<>(Collections.singleton(args[0]));
             reprocessed.addAll(Arrays.stream(ACFPatterns.SPACE.split(msg.substring(prefixFound.length()).replace(args[0], ""), -1)).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
@@ -370,11 +377,7 @@ public class JDACommandManager extends ArmaCommandManager<
         }
         log.warn("After: {}", (Object) args);
 
-        String cmd = args[0].toLowerCase(Locale.ENGLISH);
-        JDARootCommand rootCommand = this.commands.get(cmd);
-        if (rootCommand == null) {
-            return;
-        }
+        log.warn("Executing command {} with args {}", rootCommand.getCommandName(), args);
         args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
         if (!devCheck(event))
             return;
