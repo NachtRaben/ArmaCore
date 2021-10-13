@@ -180,17 +180,14 @@ public class JDACommandManager extends ArmaCommandManager<
         // Process annotations first
         Annotations annotations = getAnnotations();
         Class<? extends BaseCommand> self = command.getClass();
-        if (annotations.hasAnnotation(self, DiscordPermission.class)) {
+        if ( annotations.getAnnotationFromClass( self, DiscordPermission.class ) != null ) {
             DiscordPermission anno = annotations.getAnnotationFromClass(self, DiscordPermission.class);
             String additional = Arrays.stream(anno.value()).map(p -> p.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "-")).collect(Collectors.joining(", "));
-            log.warn("Found DiscordPermission annotation on {} with values {}", command.getClass().getSimpleName(), additional);
-            log.warn("Initial {}", command.permission);
             if (command.permission == null || command.permission.isEmpty()) {
                 command.permission = additional;
             } else {
                 command.permission = command.permission + "," + additional;
             }
-            log.warn("Modified {}", command.permission);
         }
 
         command.onRegister(this);
@@ -211,14 +208,11 @@ public class JDACommandManager extends ArmaCommandManager<
         DiscordPermission anno = cmd.getAnnotation(DiscordPermission.class) != null ? (DiscordPermission) cmd.getAnnotation(DiscordPermission.class) : null;
         if (anno != null) {
             String additional = Arrays.stream(anno.value()).map(p -> p.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "-")).collect(Collectors.joining(", "));
-            log.warn("Found DiscordPermission annotation on {} with values {}", cmd.command, additional);
-            log.warn("Initial {}", cmd.permission);
             if (cmd.permission == null || cmd.permission.isEmpty()) {
                 cmd.permission = additional;
             } else {
                 cmd.permission = cmd.permission + "," + additional;
             }
-            log.warn("Modified {}", cmd.permission);
             cmd.computePermissions();
         }
         return cmd;
