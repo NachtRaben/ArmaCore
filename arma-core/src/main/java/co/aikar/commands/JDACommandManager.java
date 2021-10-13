@@ -12,10 +12,8 @@ import dev.armadeus.core.ArmaCoreImpl;
 import dev.armadeus.core.command.NullCommandIssuer;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.AccountType;
-import net.dv8tion.jda.api.entities.ApplicationInfo;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,12 +21,15 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -55,6 +56,65 @@ public class JDACommandManager extends ArmaCommandManager<
     private CommandConfigProvider configProvider;
     private CommandPermissionResolver permissionResolver;
     private Set<Long> botOwner = new HashSet<>();
+
+    private void permissionDenied( DiscordCommandIssuer issuer ) {
+        if ( issuer.getUser() == null ) return;
+        Member member = issuer.getMember();
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor( Color.RED );
+        embed.setTitle( "Error Preforming Command." );
+        embed.addField( "Permission Denied.", "", false );
+        embed.setFooter( issuer.getUser().getAsTag(), issuer.getUser().getEffectiveAvatarUrl() );
+
+        if ( member != null ) {
+            embed.setAuthor( member.getGuild().getName() );
+            embed.setThumbnail( member.getGuild().getIconUrl() );
+        } else {
+            embed.setAuthor( issuer.getUser().getAsTag() );
+        }
+
+        issuer.getUser().openPrivateChannel().queue( ch -> {
+            ch.sendMessageEmbeds( embed.build() ).queue( msg -> msg.delete().queueAfter( 1L, TimeUnit.MINUTES ) );
+        } );
+    }
+
+    @NotNull
+    private Object findBaseCommand( RootCommand rootCommand ) {
+        List<BaseCommand> children = rootCommand.getChildren();
+        if (children.isEmpty()) return rootCommand.getDefCommand();
+
+        for (BaseCommand child : children) {
+            if ( child.getName().equals( rootCommand.getCommandName() ) ) {
+                return child;
+            }
+            for (RegisteredCommand<?> value : child.getRegisteredCommands()) {
+                if ( value.getCommand().equals( rootCommand.getCommandName() ) ) {
+                    return value;
+                }
+            }
+        }
+
+        return rootCommand.getDefCommand();
+    }
+
+    private boolean issuerPermissionDenied( CommandIssuer issuer, RootCommand rootCommand ) {
+        Object foundCommand = findBaseCommand( rootCommand );
+        if ( foundCommand instanceof BaseCommand ) {
+            BaseCommand castCommand = ((BaseCommand) foundCommand);
+            if ( !castCommand.hasPermission( issuer ) ) {
+                permissionDenied( (DiscordCommandIssuer) issuer );
+                return true;
+            }
+        } else {
+            RegisteredCommand<?> castCommand = ((RegisteredCommand<?>) foundCommand);
+            if ( !castCommand.hasPermission( issuer ) ) {
+                permissionDenied( (DiscordCommandIssuer) issuer );
+                return true;
+            }
+        }
+        return false;
+    }
 
     public JDACommandManager(ArmaCoreImpl core) {
         this.core = core;
@@ -318,6 +378,8 @@ public class JDACommandManager extends ArmaCommandManager<
         event.deferReply().setEphemeral(true).complete();
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
+        if ( issuerPermissionDenied( issuer, rootCommand ) ) return;
+
         try {
             if (core.eventManager().fire(new CommandPreExecuteEvent(issuer, rootCommand)).get().isAllowed()) {
                 String[] finalArgs = args;
@@ -377,6 +439,8 @@ public class JDACommandManager extends ArmaCommandManager<
             return;
 
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
+        if ( issuerPermissionDenied( issuer, rootCommand ) ) return;
+
         String[] finalArgs = args;
         ForkJoinPool.commonPool().execute(() -> {
             try {
