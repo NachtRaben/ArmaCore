@@ -79,41 +79,10 @@ public class JDACommandManager extends ArmaCommandManager<
         } );
     }
 
-    @NotNull
-    private Object findBaseCommand( RootCommand rootCommand ) {
-        List<BaseCommand> children = rootCommand.getChildren();
-        if (children.isEmpty()) return rootCommand.getDefCommand();
-
-        for (BaseCommand child : children) {
-            if ( child.getName().equals( rootCommand.getCommandName() ) ) {
-                return child;
-            }
-            for (RegisteredCommand<?> value : child.getRegisteredCommands()) {
-                if ( value.getCommand().equals( rootCommand.getCommandName() ) ) {
-                    return value;
-                }
-            }
-        }
-
-        return rootCommand.getDefCommand();
-    }
-
-    private boolean issuerPermissionDenied( CommandIssuer issuer, RootCommand rootCommand ) {
-        Object foundCommand = findBaseCommand( rootCommand );
-        if ( foundCommand instanceof BaseCommand ) {
-            BaseCommand castCommand = ((BaseCommand) foundCommand);
-            if ( !castCommand.hasPermission( issuer ) ) {
-                permissionDenied( (DiscordCommandIssuer) issuer );
-                return true;
-            }
-        } else {
-            RegisteredCommand<?> castCommand = ((RegisteredCommand<?>) foundCommand);
-            if ( !castCommand.hasPermission( issuer ) ) {
-                permissionDenied( (DiscordCommandIssuer) issuer );
-                return true;
-            }
-        }
-        return false;
+    private boolean issuerPermissionDenied( CommandIssuer issuer, JDARootCommand rootCommand, String commandLabel, String[] args ) {
+        var foundCommand = rootCommand.findSubCommand( commandLabel, args );
+        if ( foundCommand != null ) return !foundCommand.hasPermission( issuer );
+        return !rootCommand.getDefCommand().hasPermission( issuer );
     }
 
     public JDACommandManager(ArmaCoreImpl core) {
@@ -378,7 +347,10 @@ public class JDACommandManager extends ArmaCommandManager<
         event.deferReply().setEphemeral(true).complete();
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
-        if ( issuerPermissionDenied( issuer, rootCommand ) ) return;
+        if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
+            permissionDenied( issuer );
+            return;
+        }
 
         try {
             if (core.eventManager().fire(new CommandPreExecuteEvent(issuer, rootCommand)).get().isAllowed()) {
@@ -439,7 +411,10 @@ public class JDACommandManager extends ArmaCommandManager<
             return;
 
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
-        if ( issuerPermissionDenied( issuer, rootCommand ) ) return;
+        if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
+            permissionDenied( issuer );
+            return;
+        }
 
         String[] finalArgs = args;
         ForkJoinPool.commonPool().execute(() -> {
