@@ -340,6 +340,9 @@ public class JDACommandManager extends ArmaCommandManager<
     }
 
     void dispatchEvent(MessageReceivedEvent event) {
+        if (!event.getChannel().getType().isMessage()) {
+            return;
+        }
         Message message = event.getMessage();
         if (message.getAuthor().isBot())
             return;
