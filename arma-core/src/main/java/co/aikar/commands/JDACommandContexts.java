@@ -84,6 +84,10 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
             } else if (arg.startsWith("<@")) { // users can /also/ be mentioned like this...
                 user = shardManager.getUserById(arg.substring(2, arg.length() - 1));
             } else {
+                User u = shardManager.getUserByTag(arg);
+                if (u != null)
+                    return u;
+
                 String finalArg = arg;
                 List<User> users = shardManager.getShards().stream().flatMap(jda -> jda.getUsersByName(finalArg, true).stream()).collect(Collectors.toList());
                 if (users.size() > 1) {

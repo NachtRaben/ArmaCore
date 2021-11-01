@@ -61,6 +61,7 @@ public class JDACommandPermissionResolver implements CommandPermissionResolver {
         List<Long> roles = event.getMember().getRoles().stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
         Set<String> blocked = new HashSet<>(config.getDisabledCommands());
         for (Long role : roles) {
+            // TODO: Add perm negation based on role hierarchy
             blocked.addAll(config.getDisabledCommandsForRole(role));
         }
         for (String b : blocked) {
