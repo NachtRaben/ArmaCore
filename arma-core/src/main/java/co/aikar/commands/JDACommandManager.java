@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -57,6 +56,7 @@ public class JDACommandManager extends ArmaCommandManager<
     private CommandPermissionResolver permissionResolver;
     private Set<Long> botOwner = new HashSet<>();
 
+    // TODO: Replace internal call.
     private void permissionDenied( DiscordCommandIssuer issuer ) {
         if ( issuer.getUser() == null ) return;
         Member member = issuer.getMember();
@@ -74,9 +74,11 @@ public class JDACommandManager extends ArmaCommandManager<
             embed.setAuthor( issuer.getUser().getAsTag() );
         }
 
-        issuer.getUser().openPrivateChannel().queue( ch -> {
-            ch.sendMessageEmbeds( embed.build() ).queue( msg -> msg.delete().queueAfter( 1L, TimeUnit.MINUTES ) );
-        } );
+        issuer.getUser().openPrivateChannel().submit()
+            .thenCompose(channel -> channel.sendMessageEmbeds( embed.build() ).submit())
+            .whenComplete((message, error) -> {
+                if (error != null) logger.log( Level.WARNING, "Failed silently, can't notify user." );
+            });
     }
 
     private boolean issuerPermissionDenied( CommandIssuer issuer, JDARootCommand rootCommand, String commandLabel, String[] args ) {
@@ -344,7 +346,9 @@ public class JDACommandManager extends ArmaCommandManager<
         args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
         if (!devCheck(event))
             return;
+
         event.deferReply().setEphemeral(true).complete();
+
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
         if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
