@@ -22,7 +22,6 @@ public class JDARootCommand implements RootCommand {
     }
 
     @Override
-
     public void addChild(BaseCommand command) {
         if (this.defCommand == null || !command.getSubCommands().get(BaseCommand.DEFAULT).isEmpty()) {
             this.defCommand = command;

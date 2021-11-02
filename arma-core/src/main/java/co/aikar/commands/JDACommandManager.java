@@ -12,10 +12,8 @@ import dev.armadeus.core.ArmaCoreImpl;
 import dev.armadeus.core.command.NullCommandIssuer;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.AccountType;
-import net.dv8tion.jda.api.entities.ApplicationInfo;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,9 +21,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -55,6 +55,37 @@ public class JDACommandManager extends ArmaCommandManager<
     private CommandConfigProvider configProvider;
     private CommandPermissionResolver permissionResolver;
     private Set<Long> botOwner = new HashSet<>();
+
+    // TODO: Replace internal call.
+    private void permissionDenied( DiscordCommandIssuer issuer ) {
+        if ( issuer.getUser() == null ) return;
+        Member member = issuer.getMember();
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor( Color.RED );
+        embed.setTitle( "Error Preforming Command." );
+        embed.addField( "Permission Denied.", "", false );
+        embed.setFooter( issuer.getUser().getAsTag(), issuer.getUser().getEffectiveAvatarUrl() );
+
+        if ( member != null ) {
+            embed.setAuthor( member.getGuild().getName() );
+            embed.setThumbnail( member.getGuild().getIconUrl() );
+        } else {
+            embed.setAuthor( issuer.getUser().getAsTag() );
+        }
+
+        issuer.getUser().openPrivateChannel().submit()
+            .thenCompose(channel -> channel.sendMessageEmbeds( embed.build() ).submit())
+            .whenComplete((message, error) -> {
+                if (error != null) logger.log( Level.WARNING, "Failed silently, can't notify user." );
+            });
+    }
+
+    private boolean issuerPermissionDenied( CommandIssuer issuer, JDARootCommand rootCommand, String commandLabel, String[] args ) {
+        var foundCommand = rootCommand.findSubCommand( commandLabel, args );
+        if ( foundCommand != null ) return !foundCommand.hasPermission( issuer );
+        return !rootCommand.getDefCommand().hasPermission( issuer );
+    }
 
     public JDACommandManager(ArmaCoreImpl core) {
         this.core = core;
@@ -315,9 +346,16 @@ public class JDACommandManager extends ArmaCommandManager<
         args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
         if (!devCheck(event))
             return;
+
         event.deferReply().setEphemeral(true).complete();
+
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
+        if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
+            permissionDenied( issuer );
+            return;
+        }
+
         try {
             if (core.eventManager().fire(new CommandPreExecuteEvent(issuer, rootCommand)).get().isAllowed()) {
                 String[] finalArgs = args;
@@ -380,6 +418,11 @@ public class JDACommandManager extends ArmaCommandManager<
             return;
 
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
+        if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
+            permissionDenied( issuer );
+            return;
+        }
+
         String[] finalArgs = args;
         ForkJoinPool.commonPool().execute(() -> {
             try {
