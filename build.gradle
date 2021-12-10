@@ -28,7 +28,7 @@ allprojects {
     ext {
         lombokVersion = '1.18.20'
         slf4jVersion = '1.7.30'
-        log4jVersion = '2.14.1'
+        log4jVersion = '2.15.0'
         guavaVersion = '30.1.1-jre'
         jdaVersion = '4.3.0_324'
         jdaDevVersion = 'feature~slash-commands-SNAPSHOT'
