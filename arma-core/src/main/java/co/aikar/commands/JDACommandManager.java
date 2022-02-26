@@ -13,9 +13,13 @@ import dev.armadeus.core.command.NullCommandIssuer;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.ApplicationInfo;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -275,8 +279,8 @@ public class JDACommandManager extends ArmaCommandManager<
     public JDACommandEvent getCommandIssuer(Object issuer) {
         if (issuer instanceof MessageReceivedEvent) {
             return new CommandSenderImpl(core, this, (MessageReceivedEvent) issuer);
-        } else if (issuer instanceof SlashCommandEvent) {
-            return new CommandSenderImpl(core, this, (SlashCommandEvent) issuer);
+        } else if (issuer instanceof SlashCommandInteractionEvent) {
+            return new CommandSenderImpl(core, this, (SlashCommandInteractionEvent) issuer);
         } else {
             throw new IllegalArgumentException(issuer.getClass().getName() + " is not a valid event type");
         }
@@ -324,7 +328,7 @@ public class JDACommandManager extends ArmaCommandManager<
         }
     }
 
-    void dispatchSlash(SlashCommandEvent event) {
+    void dispatchSlash(SlashCommandInteractionEvent event) {
         List<String> largs = new ArrayList<>(List.of(event.getCommandPath().split("/")));
         for (OptionMapping option : event.getOptions()) {
             largs.add(option.getAsString());
@@ -442,7 +446,7 @@ public class JDACommandManager extends ArmaCommandManager<
 
     private boolean devCheck(Event e) {
         if (core.instanceManager() != null && core.instanceManager().isDevActive()) {
-            Guild guild = e instanceof MessageReceivedEvent ? ((MessageReceivedEvent) e).getGuild() : ((SlashCommandEvent) e).getGuild();
+            Guild guild = e instanceof MessageReceivedEvent ? ((MessageReceivedEvent) e).getGuild() : ((SlashCommandInteractionEvent) e).getGuild();
             if (guild == null) {
                 return true;
             }

@@ -27,15 +27,6 @@ public interface GuildConfig {
 
     GuildConfig deleteCommandMessages(boolean delete);
 
-    // Prefixes
-    Set<String> getPrefixes();
-
-    GuildConfig setPrefixes(Set<String> prefixes);
-
-    GuildConfig addPrefixes(String... prefixes);
-
-    GuildConfig removePrefixes(String... prefixes);
-
     // Blacklisted Commands
     Set<String> getDisabledCommands();
 

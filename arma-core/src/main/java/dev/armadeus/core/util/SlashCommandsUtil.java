@@ -16,9 +16,9 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -41,13 +41,13 @@ public class SlashCommandsUtil {
         this.core = core;
     }
 
-    private void registerRootCommand(Map<String, CommandData> commandMap, JDARootCommand root) {
+    private void registerRootCommand(Map<String, CommandDataImpl> commandMap, JDARootCommand root) {
         // Get Command Information
         String name = root.getCommandName();
         String description = StringUtils.getOrDefault(root.getDescription(), "Unspecified Description");
 
         // Prepare payload Data
-        CommandData rootData = commandMap.computeIfAbsent(name, i -> new CommandData(name, description));
+        CommandDataImpl rootData = commandMap.computeIfAbsent(name, i -> new CommandDataImpl(name, description));
 
         // Generate Command Help
         List<HelpEntry> entries = new ArrayList<>(root.getCommandHelp(NullCommandIssuer.INSTANCE, new String[0]).getHelpEntries());
@@ -208,8 +208,8 @@ public class SlashCommandsUtil {
 //        }
     }
 
-    public Collection<CommandData> generateCommandData() {
-        Map<String, CommandData> commandMap = new HashMap<>();
+    public Collection<CommandDataImpl> generateCommandData() {
+        Map<String, CommandDataImpl> commandMap = new HashMap<>();
         Collection<JDARootCommand> commands = core.commandManager().getRegisteredRootCommands().stream()
                 .map(JDARootCommand.class::cast)
                 .sorted(Comparator.comparing(JDARootCommand::getCommandName))

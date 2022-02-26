@@ -3,7 +3,7 @@ package co.aikar.commands;
 import com.velocitypowered.api.event.Subscribe;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class JDAListener {
@@ -22,7 +22,7 @@ public class JDAListener {
     }
 
     @Subscribe
-    public void onSlashCommand(SlashCommandEvent event) {
+    public void onSlashCommand(SlashCommandInteractionEvent event) {
         this.manager.dispatchSlash(event);
     }
 

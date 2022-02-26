@@ -3,7 +3,6 @@ package dev.armadeus.core.command;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Conditions;
-import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
@@ -14,7 +13,6 @@ import dev.armadeus.bot.api.util.EmbedUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
-import java.util.Collections;
 import java.util.Set;
 
 @CommandAlias("config|conf")
@@ -22,19 +20,6 @@ import java.util.Set;
 @CommandPermission("administrator")
 @Description("Configuration commands to control bot behavior")
 public class ConfCommands extends DiscordCommand {
-
-    @Subcommand("set prefixes")
-    @Description("Set prefixes the bot will respond too in your guild")
-    public void setPrefixes(DiscordCommandIssuer user, @Default() String[] prefixes) {
-        GuildConfig config = user.getGuildConfig();
-        if (prefixes.length != 0) {
-            config.setPrefixes(Set.of(prefixes));
-            user.sendMessage("The guild prefixes have been updated to `" + config.getPrefixes() + "`");
-        } else {
-            config.setPrefixes(Collections.emptySet());
-            user.sendMessage("The guild prefixes have been cleared falling back to `" + core.armaConfig().getDeveloperIds() + "`");
-        }
-    }
 
     @Subcommand("set cooldown")
     @Description("UNIMPLEMENTED, Set the command cooldown for your guild")
@@ -73,22 +58,6 @@ public class ConfCommands extends DiscordCommand {
             user.sendMessage("The bot will now delete user command messages");
         else
             user.sendMessage("The bot will no longer delete user command messages");
-    }
-
-    @Subcommand("add prefix")
-    @Description("Add a prefix the bot will respond to in your guild")
-    public void addPrefix(DiscordCommandIssuer user, String prefix) {
-        GuildConfig config = user.getGuildConfig();
-        config.addPrefixes(prefix);
-        user.sendMessage("The guild prefixes have been updated to `" + config.getPrefixes() + "`");
-    }
-
-    @Subcommand("remove prefix")
-    @Description("Remove a prefix that the bot will respond to in your guild")
-    public void removePrefix(DiscordCommandIssuer user, String prefix) {
-        GuildConfig config = user.getGuildConfig();
-        config.removePrefixes(prefix);
-        user.sendMessage("The guild prefixes have been updated to `" + config.getPrefixes() + "`");
     }
 
     @Subcommand("command blacklist")

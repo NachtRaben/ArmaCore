@@ -3,8 +3,6 @@ package dev.armadeus.core;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -13,13 +11,13 @@ import static java.util.Arrays.asList;
 
 public class BootLoader {
 
-    private static final Logger logger;
-
-    static {
-        // Override LUL LogManager with an Log4J2 LogManager
-        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
-        logger = LogManager.getLogger();
-    }
+//    private static final Logger logger;
+//
+//    static {
+//         Override LUL LogManager with an Log4J2 LogManager
+//        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+//        logger = LogManager.getLogger();
+//    }
 
     public static void main(String[] args) {
         // Standard CLI arguments parser
@@ -38,7 +36,7 @@ public class BootLoader {
         try {
             options = parser.parse(args);
         } catch (OptionException e) {
-            logger.error("Failed to parse CLI arguments", e);
+//            logger.error("Failed to parse CLI arguments", e);
             return;
         }
 
@@ -47,7 +45,7 @@ public class BootLoader {
             try {
                 parser.printHelpOn(System.out);
             } catch (IOException e) {
-                logger.error(e);
+//                logger.error(e);
             }
             return;
         }
@@ -64,9 +62,9 @@ public class BootLoader {
         if (runtimeMX != null && osMX != null) {
             String javaInfo = "Java " + runtimeMX.getSpecVersion() + " (" + runtimeMX.getVmName() + " " + runtimeMX.getVmVersion() + ")";
             String osInfo = "Host:  " + osMX.getName() + " " + osMX.getVersion() + " (" + osMX.getArch() + ")";
-            logger.info("System Info: " + javaInfo + " " + osInfo);
+//            logger.info("System Info: " + javaInfo + " " + osInfo);
         } else {
-            logger.warn("Unable to read System information");
+//            logger.warn("Unable to read System information");
         }
 
         long startTime = System.currentTimeMillis();
@@ -74,6 +72,6 @@ public class BootLoader {
         core.start();
         Runtime.getRuntime().addShutdownHook(new Thread(core::shutdown, "Shutdown Thread"));
         double bootTime = (System.currentTimeMillis() - startTime) / 1000D;
-        logger.info("Loaded in ({}s)", bootTime);
+//        logger.info("Loaded in ({}s)", bootTime);
     }
 }

@@ -29,8 +29,6 @@ public interface ArmaConfig {
 
     Set<Long> getDeveloperIds();
 
-    Set<String> getDefaultPrefixes();
-
     boolean isDatabaseEnabled();
 
     Map<String, CommentedConfig> getMetadata();

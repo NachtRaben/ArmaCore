@@ -82,11 +82,6 @@ public class ArmaConfigImpl implements ArmaConfig {
         return joined;
     }
 
-    @Override
-    public Set<String> getDefaultPrefixes() {
-        return Set.copyOf(config.get(asList("arma-core", "defaultPrefixes")));
-    }
-
     public boolean isDatabaseEnabled() {
         return config.get(asList("database", "enabled"));
     }

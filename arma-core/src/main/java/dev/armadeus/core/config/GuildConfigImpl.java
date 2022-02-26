@@ -72,33 +72,6 @@ public class GuildConfigImpl implements GuildConfig {
     }
 
     @Override
-    public Set<String> getPrefixes() {
-        return new HashSet<>(config.getOrElse("prefixes", List.of()));
-    }
-
-    @Override
-    public GuildConfig setPrefixes(Set<String> prefixes) {
-        config.set("prefixes", new ArrayList<>(prefixes));
-        return this;
-    }
-
-    @Override
-    public GuildConfig addPrefixes(String... prefixes) {
-        Set<String> pre = getPrefixes();
-        pre.addAll(Arrays.asList(prefixes));
-        setPrefixes(pre);
-        return this;
-    }
-
-    @Override
-    public GuildConfig removePrefixes(String... prefixes) {
-        Set<String> pre = getPrefixes();
-        Arrays.asList(prefixes).forEach(pre::remove);
-        setPrefixes(pre);
-        return this;
-    }
-
-    @Override
     public Set<String> getDisabledCommands() {
         return new HashSet<>(config.getOrElse("disabledCommands", List.of()));
     }

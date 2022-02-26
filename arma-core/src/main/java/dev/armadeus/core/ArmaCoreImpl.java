@@ -12,14 +12,12 @@ import com.velocitypowered.proxy.event.VelocityEventManager;
 import com.velocitypowered.proxy.plugin.VelocityPluginManager;
 import com.velocitypowered.proxy.scheduler.VelocityScheduler;
 import dev.armadeus.bot.api.ArmaCore;
-import dev.armadeus.bot.api.config.GuildConfig;
 import dev.armadeus.bot.api.events.ShutdownEvent;
 import dev.armadeus.bot.api.util.DiscordReference;
 import dev.armadeus.core.command.CommandCommand;
 import dev.armadeus.core.command.ConfCommands;
 import dev.armadeus.core.command.HelpCommand;
 import dev.armadeus.core.command.PingCommand;
-import dev.armadeus.core.command.PrefixesCommand;
 import dev.armadeus.core.command.ShutdownCommand;
 import dev.armadeus.core.command.SlashCommands;
 import dev.armadeus.core.command.UptimeCommand;
@@ -35,12 +33,8 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManager;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,13 +42,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -124,7 +114,10 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
     private void loadPlugins() {
         logger.info("Loading plugins...");
         try {
-            pluginManager.loadPlugins(Path.of("plugins"));
+            Path pluginsDir = Path.of("plugins");
+            if (!Files.isDirectory(pluginsDir))
+                Files.createDirectories(pluginsDir);
+            pluginManager.loadPlugins(pluginsDir);
 
             // Register the plugin main classes so that we can fire the proxy initialize event
             for (PluginContainer plugin : pluginManager.plugins()) {
@@ -165,14 +158,13 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
         AtomicInteger shards = new AtomicInteger(armaConfig.getShardsTotal());
         try {
             DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(armaConfig.getToken());
-            builder.setEnabledIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)); // TODO: Configure by event
-            builder.enableCache(EnumSet.allOf(CacheFlag.class)); // TODO: Configure by event
+//            builder.enableCache(EnumSet.allOf(CacheFlag.class)); // TODO: Configure by event
             builder.setEventManagerProvider(ExecutorServiceEventManager::get);
             builder.setEnableShutdownHook(false);
             builder.setShardsTotal(armaConfig.getShardsTotal());
             builder.setActivityProvider(value -> Activity.watching("Arma-Core #" + value));
-            builder.setMemberCachePolicy(MemberCachePolicy.ALL); // TODO: Configure by event
-            builder.setChunkingFilter(ChunkingFilter.ALL); // TODO: Configure by event
+//            builder.setMemberCachePolicy(MemberCachePolicy.ONLINE); // TODO: Configure by event
+//            builder.setChunkingFilter(ChunkingFilter.ALL); // TODO: Configure by event
             builder.addEventListeners((EventListener) event -> {
                 if (event instanceof ReadyEvent)
                     shards.decrementAndGet();
@@ -207,15 +199,7 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
                 return List.of("\u0000");
             }
             long id = shardManager.getShards().get(0).getSelfUser().getIdLong();
-            Set<String> prefixes = new HashSet<>(List.of("<@" + id + "> ", "<@!" + id + "> "));
-            if (event.isFromGuild()) {
-                GuildConfig config = guildManager.getConfigFor(event.getGuild());
-                prefixes.addAll(config.getPrefixes());
-            }
-            if (prefixes.size() < 3) {
-                prefixes.addAll(armaConfig.getDefaultPrefixes());
-            }
-            return new ArrayList<>(prefixes);
+            return List.of("<@" + id + "> ", "<@!" + id + "> ");
         });
         commandManager.initialize(options);
         commandManager.registerDependency(ArmaCore.class, this);
@@ -230,7 +214,6 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
         commandManager.registerCommand(new CommandCommand());
         commandManager.registerCommand(new HelpCommand());
         commandManager.registerCommand(new PingCommand());
-        commandManager.registerCommand(new PrefixesCommand());
         commandManager.registerCommand(new ShutdownCommand());
         commandManager.registerCommand(new UptimeCommand());
         commandManager.registerCommand(new ConfCommands());

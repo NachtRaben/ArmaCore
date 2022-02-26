@@ -1,6 +1,7 @@
 package co.aikar.commands;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -9,8 +10,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,10 +19,10 @@ import java.util.UUID;
 public class JDACommandEvent implements CommandIssuer {
 
     private MessageReceivedEvent event;
-    private SlashCommandEvent slash;
+    private SlashCommandInteractionEvent slash;
     private JDACommandManager manager;
 
-    public JDACommandEvent(JDACommandManager manager, SlashCommandEvent event) {
+    public JDACommandEvent(JDACommandManager manager, SlashCommandInteractionEvent event) {
         this.manager = manager;
         this.slash = event;
     }
@@ -36,7 +36,7 @@ public class JDACommandEvent implements CommandIssuer {
         return event;
     }
 
-    public SlashCommandEvent getSlash() {
+    public SlashCommandInteractionEvent getSlash() {
         return slash;
     }
 
@@ -83,7 +83,7 @@ public class JDACommandEvent implements CommandIssuer {
     }
 
     public void sendMessage(MessageEmbed message) {
-        getChannel().sendMessage(message).queue();
+        getChannel().sendMessageEmbeds(message).queue();
     }
 
     // Additionals
@@ -123,7 +123,7 @@ public class JDACommandEvent implements CommandIssuer {
         return ch.getType() == ChannelType.TEXT ? (TextChannel) ch : null;
     }
 
-    public VoiceChannel getVoiceChannel() {
+    public AudioChannel getVoiceChannel() {
         Member m = getMember();
         if (m != null && m.getVoiceState() != null) {
             return m.getVoiceState().getChannel();

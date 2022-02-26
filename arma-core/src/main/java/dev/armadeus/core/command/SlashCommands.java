@@ -9,7 +9,7 @@ import dev.armadeus.bot.api.command.DiscordCommand;
 import dev.armadeus.bot.api.command.DiscordCommandIssuer;
 import dev.armadeus.core.ArmaCoreImpl;
 import dev.armadeus.core.util.SlashCommandsUtil;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import java.util.Collection;
 
@@ -30,7 +30,7 @@ public class SlashCommands extends DiscordCommand {
     @Description("Publishes all commands to discord as slash commands")
     public void importSlashCommands(DiscordCommandIssuer user) {
         SlashCommandsUtil util = new SlashCommandsUtil((ArmaCoreImpl) core);
-        Collection<CommandData> generated = util.generateCommandData();
+        Collection<CommandDataImpl> generated = util.generateCommandData();
         user.getJda().updateCommands().addCommands(generated).queue(
                 s -> user.sendMessage("Published %s commands globally", String.valueOf(generated.size())),
                 f -> {

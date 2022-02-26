@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -32,7 +32,7 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
         this.registerIssuerOnlyContext(JDACommandEvent.class, CommandExecutionContext::getIssuer);
         this.registerIssuerOnlyContext(DiscordCommandIssuer.class, c -> (DiscordCommandIssuer) c.getIssuer());
         this.registerIssuerOnlyContext(MessageReceivedEvent.class, c -> c.getIssuer().getEvent());
-        this.registerIssuerOnlyContext(SlashCommandEvent.class, c -> c.getIssuer().getSlash());
+        this.registerIssuerOnlyContext(SlashCommandInteractionEvent.class, c -> c.getIssuer().getSlash());
         this.registerIssuerOnlyContext(Message.class, c -> c.getIssuer().getMessage());
         this.registerIssuerOnlyContext(ChannelType.class, c -> c.getIssuer().getChannel().getType());
         this.registerIssuerOnlyContext(JDA.class, c -> c.getIssuer().getJda());
