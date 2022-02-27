@@ -14,6 +14,7 @@ import com.velocitypowered.proxy.scheduler.VelocityScheduler;
 import dev.armadeus.bot.api.ArmaCore;
 import dev.armadeus.bot.api.events.ShutdownEvent;
 import dev.armadeus.bot.api.util.DiscordReference;
+import dev.armadeus.bot.rest.RestManager;
 import dev.armadeus.core.command.CommandCommand;
 import dev.armadeus.core.command.ConfCommands;
 import dev.armadeus.core.command.HelpCommand;
@@ -92,6 +93,8 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
         loadPlugins();
         loadGuildManager();
         loadJda();
+        if (armaConfig.getRestConfig().isEnabled())
+            RestManager.init(this);
         loadCommandManager();
         if (armaConfig.isDatabaseEnabled()) {
             instanceManager = new InstanceManager(this);

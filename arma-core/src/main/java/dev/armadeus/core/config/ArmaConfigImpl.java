@@ -151,6 +151,11 @@ public class ArmaConfigImpl implements ArmaConfig {
         }
     }
 
+    @Override
+    public RestConfig getRestConfig() {
+        return new ObjectConverter().toObject(config.get("rest"), RestConfig::new);
+    }
+
     @Getter
     public static class Database {
 

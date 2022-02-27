@@ -2,4 +2,5 @@ rootProject.name = 'ArmaCore'
 
 include 'arma-api'
 include 'arma-core'
+include 'arma-rest'
 

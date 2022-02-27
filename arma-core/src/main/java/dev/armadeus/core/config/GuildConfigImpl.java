@@ -28,6 +28,11 @@ public class GuildConfigImpl implements GuildConfig {
     }
 
     @Override
+    public Config getRawConfig() {
+        return config;
+    }
+
+    @Override
     public int getCommandCooldown() {
         return config.getOrElse("commandCooldown", -1);
     }

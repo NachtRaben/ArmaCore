@@ -129,7 +129,9 @@ public class GuildManagerImpl implements GuildManager {
                 checkNotNull(defaultGuildConfigLocation, "Default guild configuration does not exist");
                 Config defaults = TomlFormat.instance().createParser().parse(defaultGuildConfigLocation);
                 Config config;
-                if (core.armaConfig().isDatabaseEnabled()) {
+                if (core.shardManager().getGuildById(guildId) == null) { // Ephemeral "Fake" Configs
+                    config = new NestedConfig(guildId, defaults);
+                } else if (core.armaConfig().isDatabaseEnabled()) {
                     config = new NestedConfig(guildId, loadDatabaseConfig.apply(guildId));
                 } else {
                     config = new NestedConfig(guildId, loadFileConfig.apply(guildId));

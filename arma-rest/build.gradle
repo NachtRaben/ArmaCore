@@ -1,0 +1,29 @@
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow'
+}
+
+sourceSets {
+    ap {
+        compileClasspath += main.compileClasspath + main.output
+    }
+}
+
+jar {
+    from sourceSets.ap.output
+}
+
+shadowJar.classifier = ''
+
+dependencies {
+    compileOnly project(":arma-api")
+
+    // Lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+
+    implementation 'com.sparkjava:spark-core:2.9.3'
+}
+

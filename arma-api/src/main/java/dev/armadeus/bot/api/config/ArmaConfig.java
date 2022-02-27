@@ -1,6 +1,7 @@
 package dev.armadeus.bot.api.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,4 +41,13 @@ public interface ArmaConfig {
     ArmaConfig setMetadata(String key, CommentedConfig config);
 
     Connection createDatabaseConnection();
+
+    RestConfig getRestConfig();
+
+    @Getter
+    class RestConfig {
+
+        boolean enabled;
+        String bind;
+    }
 }

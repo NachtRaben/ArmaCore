@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 
 public interface GuildConfig {
 
+    Config getRawConfig();
+
     // Command Cooldown
     int getCommandCooldown();
 

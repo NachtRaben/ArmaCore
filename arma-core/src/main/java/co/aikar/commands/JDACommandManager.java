@@ -369,7 +369,7 @@ public class JDACommandManager extends ArmaCommandManager<
                     core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
                         if (!sender.isSlashAcked())
                             sender.sendMessage("Success :heavy_check_mark");
-                    }).delay(2, TimeUnit.SECONDS);
+                    }).delay(2, TimeUnit.SECONDS).schedule();
                 });
             }
         } catch (InterruptedException | ExecutionException e) {
