@@ -51,6 +51,8 @@ public interface DiscordCommandIssuer extends CommandIssuer {
 
     void sendMessage(Message message, long purgeAfter);
 
+    void queueMessagePurge(Message message, long purgeAfter);
+
     // Private Only Senders
     void sendPrivateMessage(String message);
 

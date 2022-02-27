@@ -48,6 +48,7 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
         }
     }
 
+    @Override
     public void queueMessagePurge(Message message, long purgeAfter) {
         // Message Event Handling
         if (message.getChannel().getType() == ChannelType.TEXT && purgeAfter == 0) {
