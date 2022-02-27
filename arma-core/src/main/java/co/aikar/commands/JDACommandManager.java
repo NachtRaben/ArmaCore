@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -365,9 +366,10 @@ public class JDACommandManager extends ArmaCommandManager<
                 String[] finalArgs = args;
                 ForkJoinPool.commonPool().execute(() -> {
                     rootCommand.execute(sender, cmd, finalArgs);
-                    if (!sender.isSlashAcked()) {
-                        event.getHook().sendMessage("Success :heavy_check_mark:").queue();
-                    }
+                    core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
+                        if (!sender.isSlashAcked())
+                            sender.sendMessage("Success :heavy_check_mark");
+                    }).delay(2, TimeUnit.SECONDS);
                 });
             }
         } catch (InterruptedException | ExecutionException e) {
