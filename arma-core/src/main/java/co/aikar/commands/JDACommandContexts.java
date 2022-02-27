@@ -31,8 +31,8 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
         this.shardManager = this.manager.getShardManager();
         this.registerIssuerOnlyContext(JDACommandEvent.class, CommandExecutionContext::getIssuer);
         this.registerIssuerOnlyContext(DiscordCommandIssuer.class, c -> (DiscordCommandIssuer) c.getIssuer());
-        this.registerIssuerOnlyContext(MessageReceivedEvent.class, c -> c.getIssuer().getEvent());
-        this.registerIssuerOnlyContext(SlashCommandInteractionEvent.class, c -> c.getIssuer().getSlash());
+        this.registerIssuerOnlyContext(MessageReceivedEvent.class, c -> c.getIssuer().getMessageEvent());
+        this.registerIssuerOnlyContext(SlashCommandInteractionEvent.class, c -> c.getIssuer().getSlashEvent());
         this.registerIssuerOnlyContext(Message.class, c -> c.getIssuer().getMessage());
         this.registerIssuerOnlyContext(ChannelType.class, c -> c.getIssuer().getChannel().getType());
         this.registerIssuerOnlyContext(JDA.class, c -> c.getIssuer().getJda());
@@ -57,7 +57,7 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
                 channel = isCrossGuild ? shardManager.getTextChannelById(id) : c.getIssuer().getGuild().getTextChannelById(id);
             } else {
                 List<TextChannel> channelList = isCrossGuild ? shardManager.getShards().stream().flatMap(jda -> jda.getTextChannelsByName(argument, true).stream()).collect(Collectors.toList()) :
-                        c.getIssuer().getEvent().getGuild().getTextChannelsByName(argument, true);
+                        c.getIssuer().getMessageEvent().getGuild().getTextChannelsByName(argument, true);
                 if (channelList.size() > 1) {
                     throw new InvalidCommandArgument("Too many channels were found with the given name. Try with the `#channelname` syntax.", false);
                 } else if (channelList.size() == 1) {

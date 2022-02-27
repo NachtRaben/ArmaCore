@@ -5,6 +5,7 @@ import dev.armadeus.bot.api.command.DiscordCommandIssuer;
 import dev.armadeus.bot.api.config.GuildConfig;
 import dev.armadeus.bot.api.util.DiscordReference;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -14,8 +15,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -24,10 +23,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+@Log4j2
 @Getter
 public class CommandSenderImpl extends JDACommandEvent implements DiscordCommandIssuer {
-
-    private static final Logger logger = LogManager.getLogger();
 
     @Getter
     private static final Map<DiscordReference<Message>, CompletableFuture<?>> pendingDeletions = new ConcurrentHashMap<>();
@@ -63,9 +61,8 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
 
         if (purge) {
             synchronized (pendingDeletions) {
-                pendingDeletions.put(new DiscordReference<>(message, id -> getChannel().getHistory().getMessageById(id)), message.delete().submitAfter(purgeAfter, TimeUnit.SECONDS).thenAccept(aVoid ->
-                        pendingDeletions.remove(message)
-                ));
+                var reference = new DiscordReference<>(message, id -> getChannel().getHistory().getMessageById(id));
+                pendingDeletions.put(reference, message.delete().submitAfter(purgeAfter, TimeUnit.SECONDS).thenAccept(aVoid -> pendingDeletions.remove(reference)));
             }
         }
     }
@@ -121,11 +118,16 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
     }
 
     private void sendAndPurge(Message message, MessageChannel channel, long purgeAfter) {
-        if (isSlashEvent() && !getSlash().getHook().isExpired()) {
-            getSlash().getHook().sendMessage(message).queue();
+        // Slash Event Handling
+        if (slashEvent != null && !slashEvent.getHook().isExpired()) {
+            if (!slashAcked)
+                slashEvent.getHook().sendMessage(message).queue();
+            else
+                slashEvent.getHook().editOriginal(message).queue();
             slashAcked = true;
             return;
         }
+        // Message Event Handling
         if (channel.getType() == ChannelType.TEXT && purgeAfter == 0) {
             long guildMessageTimeout = getGuildConfig().getPurgeDelay();
             purgeAfter = guildMessageTimeout != 0 ? guildMessageTimeout : defaultPurgeDelay;
@@ -144,7 +146,7 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
                     if (channel.getType() == ChannelType.TEXT) {
                         sendPrivateMessage(message);
                     } else {
-                        logger.warn(String.format("Failed to send private message to %s with text %s", getUser().getName(), message), throwable);
+                        log.warn(String.format("Failed to send private message to %s with text %s", getUser().getName(), message), throwable);
                     }
                     return null;
                 });

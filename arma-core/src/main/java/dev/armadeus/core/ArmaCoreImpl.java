@@ -62,11 +62,11 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
 
     // New Variables
     private ArmaConfigImpl armaConfig;
-    private VelocityPluginManager pluginManager;
-    private VelocityEventManager eventManager;
-    private JDACommandManager commandManager;
-    private VelocityScheduler scheduler;
-    private GuildManagerImpl guildManager;
+    private final VelocityPluginManager pluginManager;
+    private final VelocityEventManager eventManager;
+    private final JDACommandManager commandManager;
+    private final VelocityScheduler scheduler;
+    private final GuildManagerImpl guildManager;
     private DefaultShardManager shardManager;
     private InstanceManager instanceManager;
 
@@ -158,13 +158,10 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
         AtomicInteger shards = new AtomicInteger(armaConfig.getShardsTotal());
         try {
             DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(armaConfig.getToken());
-//            builder.enableCache(EnumSet.allOf(CacheFlag.class)); // TODO: Configure by event
             builder.setEventManagerProvider(ExecutorServiceEventManager::get);
             builder.setEnableShutdownHook(false);
             builder.setShardsTotal(armaConfig.getShardsTotal());
             builder.setActivityProvider(value -> Activity.watching("Arma-Core #" + value));
-//            builder.setMemberCachePolicy(MemberCachePolicy.ONLINE); // TODO: Configure by event
-//            builder.setChunkingFilter(ChunkingFilter.ALL); // TODO: Configure by event
             builder.addEventListeners((EventListener) event -> {
                 if (event instanceof ReadyEvent)
                     shards.decrementAndGet();
@@ -174,6 +171,7 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
             if (!armaConfig.getShards().isEmpty()) {
                 builder.setShards(armaConfig.getShards());
             }
+            eventManager.fire(builder).get();
             shardManager = (DefaultShardManager) builder.build();
         } catch (Exception e) {
             logger.error("Failed to connect to Discord", e);

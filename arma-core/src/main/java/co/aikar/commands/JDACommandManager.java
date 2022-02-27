@@ -480,7 +480,7 @@ public class JDACommandManager extends ArmaCommandManager<
     public String getCommandPrefix(CommandIssuer issuer) {
         if (issuer.equals(NullCommandIssuer.INSTANCE))
             return "";
-        MessageReceivedEvent event = ((JDACommandEvent) issuer).getEvent();
+        MessageReceivedEvent event = ((JDACommandEvent) issuer).getMessageEvent();
         CommandConfig commandConfig = getCommandConfig(event);
         List<String> prefixes = commandConfig.getCommandPrefixes();
         return prefixes.isEmpty() ? "" : prefixes.get(0);

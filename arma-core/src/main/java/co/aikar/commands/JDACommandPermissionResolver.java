@@ -36,7 +36,7 @@ public class JDACommandPermissionResolver implements CommandPermissionResolver {
         }
 
         // Return false on webhook messages, as they cannot have permissions defined.
-        if (!event.isSlashEvent() && event.getIssuer().isWebhookMessage()) {
+        if (event.messageEvent != null && event.messageEvent.isWebhookMessage()) {
             return false;
         }
 

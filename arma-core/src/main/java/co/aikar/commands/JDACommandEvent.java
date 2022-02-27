@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -18,39 +19,40 @@ import java.util.UUID;
 
 public class JDACommandEvent implements CommandIssuer {
 
-    private MessageReceivedEvent event;
-    private SlashCommandInteractionEvent slash;
-    private JDACommandManager manager;
+    protected MessageReceivedEvent messageEvent;
+    protected SlashCommandInteractionEvent slashEvent;
+    protected final JDACommandManager manager;
 
     public JDACommandEvent(JDACommandManager manager, SlashCommandInteractionEvent event) {
         this.manager = manager;
-        this.slash = event;
+        this.slashEvent = event;
     }
 
     public JDACommandEvent(JDACommandManager manager, MessageReceivedEvent event) {
         this.manager = manager;
-        this.event = event;
+        this.messageEvent = event;
     }
 
-    public MessageReceivedEvent getEvent() {
-        return event;
+    public GenericEvent getEvent() {
+        return messageEvent != null ? messageEvent : slashEvent != null ? slashEvent : null;
     }
 
-    public SlashCommandInteractionEvent getSlash() {
-        return slash;
+    public MessageReceivedEvent getMessageEvent() {
+        return messageEvent;
     }
 
-    public boolean isSlashEvent() {
-        return slash != null;
+    public SlashCommandInteractionEvent getSlashEvent() {
+        return slashEvent;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JDACommandEvent getIssuer() {
+        return this;
     }
 
     @Override
-    public MessageReceivedEvent getIssuer() {
-        return event;
-    }
-
-    @Override
-    public CommandManager getManager() {
+    public JDACommandManager getManager() {
         return this.manager;
     }
 
@@ -63,7 +65,7 @@ public class JDACommandEvent implements CommandIssuer {
     public @NotNull UUID getUniqueId() {
         // Discord id only have 64 bit width (long) while UUIDs have twice the size.
         // In order to keep it unique we use 0L for the first 64 bit.
-        long authorId = event.getAuthor().getIdLong();
+        long authorId = messageEvent.getAuthor().getIdLong();
         return new UUID(0, authorId);
     }
 
@@ -89,37 +91,33 @@ public class JDACommandEvent implements CommandIssuer {
     // Additionals
 
     public Message getMessage() {
-        return !isSlashEvent() ? getEvent().getMessage() : null;
+        return getMessageEvent().getMessage();
     }
 
     public User getUser() {
-        return !isSlashEvent() ? getEvent().getAuthor() : getSlash().getUser();
+        return messageEvent != null ? messageEvent.getAuthor() : slashEvent != null ? slashEvent.getUser() : null;
     }
 
     // Ambiguous
     public MessageChannel getChannel() {
-        return !isSlashEvent() ? getEvent().getChannel() : getSlash().getChannel();
+        return messageEvent != null ? messageEvent.getChannel() : slashEvent != null ? slashEvent.getChannel() : null;
     }
 
     // Guild Specific
     public Guild getGuild() {
-        return !isSlashEvent() ? getEvent().getGuild() : getSlash().getGuild();
+        return messageEvent != null ? messageEvent.getGuild() : slashEvent != null ? slashEvent.getGuild() : null;
     }
 
     public Member getMember() {
-        return !isSlashEvent() ? getEvent().getMember() : getSlash().getMember();
+        return messageEvent != null ? messageEvent.getMember() : slashEvent != null ? slashEvent.getMember() : null;
     }
 
     public boolean isFromGuild() {
-        return !isSlashEvent() ? getEvent().isFromGuild() : getSlash().isFromGuild();
-    }
-
-    public boolean isSlash() {
-        return isSlashEvent();
+        return messageEvent != null ? messageEvent.isFromGuild() : slashEvent != null && slashEvent.isFromGuild();
     }
 
     public TextChannel getTextChannel() {
-        MessageChannel ch = getEvent().getChannel();
+        MessageChannel ch = getChannel();
         return ch.getType() == ChannelType.TEXT ? (TextChannel) ch : null;
     }
 
@@ -132,6 +130,6 @@ public class JDACommandEvent implements CommandIssuer {
     }
 
     public JDA getJda() {
-        return !isSlashEvent() ? getEvent().getJDA() : getSlash().getJDA();
+        return getEvent().getJDA();
     }
 }
