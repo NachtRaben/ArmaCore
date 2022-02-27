@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -44,12 +43,19 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
         this.core = core;
         if (event.isFromGuild()) {
             if (getGuildConfig().deleteCommandMessages()) {
-                purge(event.getMessage(), 0);
+                queueMessagePurge(event.getMessage(), 0);
             }
         }
     }
 
-    private void purge(Message message, long purgeAfter) {
+    public void queueMessagePurge(Message message, long purgeAfter) {
+        // Message Event Handling
+        if (message.getChannel().getType() == ChannelType.TEXT && purgeAfter == 0) {
+            long guildMessageTimeout = getGuildConfig().getPurgeDelay();
+            purgeAfter = guildMessageTimeout != 0 ? guildMessageTimeout : defaultPurgeDelay;
+        } else if (message.getChannel().getType() == ChannelType.PRIVATE) {
+            purgeAfter = -1;
+        }
         if (purgeAfter == -1)
             return;
 
@@ -127,20 +133,13 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
             slashAcked = true;
             return;
         }
-        // Message Event Handling
-        if (channel.getType() == ChannelType.TEXT && purgeAfter == 0) {
-            long guildMessageTimeout = getGuildConfig().getPurgeDelay();
-            purgeAfter = guildMessageTimeout != 0 ? guildMessageTimeout : defaultPurgeDelay;
-        } else if (channel.getType() == ChannelType.PRIVATE) {
-            purgeAfter = -1;
-        }
-        if (channel.getType() == ChannelType.TEXT && !((TextChannel) channel).canTalk()) {
+        if (channel.getType() == ChannelType.TEXT && !channel.canTalk()) {
             sendPrivateMessage(message);
         }
         long finalPurgeAfter = purgeAfter;
         channel.sendMessage(message).submit()
                 .thenAccept(m -> {
-                    purge(m, finalPurgeAfter);
+                    queueMessagePurge(m, finalPurgeAfter);
                 })
                 .exceptionally(throwable -> {
                     if (channel.getType() == ChannelType.TEXT) {
