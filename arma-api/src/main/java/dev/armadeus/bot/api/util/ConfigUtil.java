@@ -1,4 +1,4 @@
-package dev.armadeus.core.util;
+package dev.armadeus.bot.api.util;
 
 import com.electronwill.nightconfig.core.Config;
 

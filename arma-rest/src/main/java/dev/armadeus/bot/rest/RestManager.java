@@ -1,12 +1,15 @@
 package dev.armadeus.bot.rest;
 
 import com.electronwill.nightconfig.core.Config;
+import com.electronwill.nightconfig.json.FancyJsonWriter;
 import com.electronwill.nightconfig.json.JsonFormat;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.armadeus.bot.api.ArmaCore;
 import dev.armadeus.bot.api.config.ArmaConfig;
+import dev.armadeus.bot.api.config.GuildConfig;
+import dev.armadeus.bot.api.events.GuildConfigReloadEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
@@ -30,6 +33,8 @@ public class RestManager {
         Preconditions.checkState(config.isEnabled(), "RestManager was called without being initialized");
         Spark.ipAddress(address);
         Spark.port(port);
+
+        // Get user manageable guilds
         Spark.get("/user/:userid", (req, res) -> {
             long userId = Long.parseLong(req.params("userid"));
             Map<Long, GuildData> guilds = core.shardManager().getGuilds().stream().filter(g -> {
@@ -41,19 +46,49 @@ public class RestManager {
             }));
             return gson.toJson(guilds);
         });
-        Spark.path("/config/:guildid", () -> {
+
+        // Guild Management
+        Spark.path("/guild/:guildid", () -> {
+            // Get whole config
             Spark.get("/", (req, res) -> {
                 Config conf = core.guildManager().getConfigFor(Long.parseLong(req.params("guildid"))).getRawConfig();
                 return JsonFormat.minimalInstance().createWriter().writeToString(conf);
             });
+
+            // Get config path
             Spark.get("/:path", (req, res) -> {
                 String path = req.params(":path");
                 Config conf = core.guildManager().getConfigFor(Long.parseLong(req.params("guildid"))).getRawConfig();
                 Object value = conf.getOrElse(path, Config.inMemory());
                 return (value instanceof Config) ? JsonFormat.fancyInstance().createWriter().writeToString((Config) value) : value;
             });
-            Spark.post("/set/:path", (req, res) -> {
-                return "No U";
+
+            // Update configs
+            Spark.path("/update", () -> {
+                // Update entire config
+                Spark.post("/", (req, res) -> {
+                    long guildId = Long.parseLong(req.params("guildid"));
+                    GuildConfig conf = core.guildManager().getConfigFor(guildId);
+                    JsonFormat<FancyJsonWriter> format = JsonFormat.fancyInstance();
+                    Config raw = conf.getRawConfig();
+                    Config received = format.createParser().parse(req.body());
+                    raw.putAll(received);
+                    core.eventManager().fireAndForget(new GuildConfigReloadEvent(guildId, conf));
+                    return format.createWriter().writeToString(raw);
+                });
+
+                // Update partial config
+                Spark.post("/:path", (req, res) -> {
+                    long guildId = Long.parseLong(req.params("guildid"));
+                    String path = req.params("path");
+                    GuildConfig conf = core.guildManager().getConfigFor(guildId);
+                    JsonFormat<FancyJsonWriter> format = JsonFormat.fancyInstance();
+                    Config raw = conf.getRawConfig();
+                    Config received = format.createParser().parse(req.body());
+                    raw.set(path, received.get(path));
+                    core.eventManager().fireAndForget(new GuildConfigReloadEvent(guildId, conf));
+                    return format.createWriter().writeToString(raw);
+                });
             });
         });
     }

@@ -34,4 +34,4 @@ uri = "jdbc:postgresql://localhost:5432/postgres"
 #Should we enable the embeded rest server
 enabled = false
 #Hostname:Port to bind too
-bind = "localhost:8080"
+bind = "localhost:9999"

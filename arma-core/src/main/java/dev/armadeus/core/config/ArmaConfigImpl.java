@@ -6,8 +6,8 @@ import com.electronwill.nightconfig.core.conversion.ObjectConverter;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import dev.armadeus.bot.api.config.ArmaConfig;
+import dev.armadeus.bot.api.util.ConfigUtil;
 import dev.armadeus.core.ArmaCoreImpl;
-import dev.armadeus.core.util.ConfigUtil;
 import lombok.Getter;
 
 import java.net.URL;
