@@ -28,6 +28,8 @@ public interface DiscordCommandIssuer extends CommandIssuer {
 
     boolean isFromGuild();
 
+    boolean isSlash();
+
     GuildConfig getGuildConfig();
 
     TextChannel getTextChannel();

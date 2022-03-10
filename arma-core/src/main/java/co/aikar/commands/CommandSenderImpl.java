@@ -124,6 +124,10 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
         });
     }
 
+    public boolean isSlash() {
+        return (slashEvent != null && !slashEvent.getHook().isExpired());
+    }
+
     private void sendAndPurge(Message message, MessageChannel channel, long purgeAfter) {
         // Slash Event Handling
         if (slashEvent != null && !slashEvent.getHook().isExpired()) {
