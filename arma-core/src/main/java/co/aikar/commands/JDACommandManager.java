@@ -10,6 +10,7 @@ import dev.armadeus.bot.api.config.GuildConfig;
 import dev.armadeus.bot.api.events.CommandPreExecuteEvent;
 import dev.armadeus.core.ArmaCoreImpl;
 import dev.armadeus.core.command.NullCommandIssuer;
+import joptsimple.internal.Strings;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -361,6 +362,7 @@ public class JDACommandManager extends ArmaCommandManager<
             if (core.eventManager().fire(new CommandPreExecuteEvent(issuer, rootCommand)).get().isAllowed()) {
                 String[] finalArgs = args;
                 ForkJoinPool.commonPool().execute(() -> {
+                    log.warn("{} executed slash command {} in {}", event.getUser().getName(), rootCommand.getCommandName() + " " + Strings.join(finalArgs, " "), event.isFromGuild() ? event.getGuild().getName() : "DMs");
                     rootCommand.execute(sender, cmd, finalArgs);
                     core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
                         if (!event.isAcknowledged())
@@ -396,7 +398,6 @@ public class JDACommandManager extends ArmaCommandManager<
         }
 
         String[] args = msg.substring(prefixFound.length()).split("[\\n\\r\\s]+", -1);
-        log.warn("Before: {}", (Object) args);
         if (args.length == 0) {
             return;
         }
@@ -412,9 +413,7 @@ public class JDACommandManager extends ArmaCommandManager<
             reprocessed.addAll(Arrays.stream(ACFPatterns.SPACE.split(msg.substring(prefixFound.length()).replace(args[0], ""), -1)).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
             log.warn("Processed: {}", reprocessed);
         }
-        log.warn("After: {}", (Object) args);
 
-        log.warn("Executing command {} with args {}", rootCommand.getCommandName(), args);
         args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
         if (!devCheck(event))
             return;
@@ -429,6 +428,7 @@ public class JDACommandManager extends ArmaCommandManager<
         ForkJoinPool.commonPool().execute(() -> {
             try {
                 if (core.eventManager().fire(new CommandPreExecuteEvent(issuer, rootCommand)).get().isAllowed()) {
+                    log.warn("{} executed message command {} in {}", event.getAuthor().getName(), rootCommand.getCommandName() + " " + Strings.join(finalArgs, " "), event.isFromGuild() ? event.getGuild().getName() : "DMs");
                     rootCommand.execute(issuer, cmd, finalArgs);
                 }
             } catch (InterruptedException | ExecutionException e) {
