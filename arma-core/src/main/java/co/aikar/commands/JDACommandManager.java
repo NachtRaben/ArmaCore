@@ -79,11 +79,7 @@ public class JDACommandManager extends ArmaCommandManager<
             embed.setAuthor( issuer.getUser().getAsTag() );
         }
 
-        issuer.getUser().openPrivateChannel().submit()
-            .thenCompose(channel -> channel.sendMessageEmbeds( embed.build() ).submit())
-            .whenComplete((message, error) -> {
-                if (error != null) logger.log( Level.WARNING, "Failed silently, can't notify user." );
-            });
+        issuer.sendMessage(embed.build());
     }
 
     private boolean issuerPermissionDenied( CommandIssuer issuer, JDARootCommand rootCommand, String commandLabel, String[] args ) {
@@ -352,7 +348,7 @@ public class JDACommandManager extends ArmaCommandManager<
         if (!devCheck(event))
             return;
 
-        event.deferReply().setEphemeral(event.isFromGuild() && core.guildManager().getConfigFor(event.getGuild()).deleteCommandMessages()).complete();
+//        event.deferReply().setEphemeral(event.isFromGuild() && core.guildManager().getConfigFor(event.getGuild()).deleteCommandMessages()).complete();
 
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
@@ -367,7 +363,7 @@ public class JDACommandManager extends ArmaCommandManager<
                 ForkJoinPool.commonPool().execute(() -> {
                     rootCommand.execute(sender, cmd, finalArgs);
                     core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
-                        if (!sender.isSlashAcked())
+                        if (!event.isAcknowledged())
                             sender.sendMessage("Success :heavy_check_mark:");
                     }).delay(2, TimeUnit.SECONDS).schedule();
                 });

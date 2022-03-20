@@ -31,7 +31,6 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
 
     // Instance settings
     private final ArmaCore core;
-    private boolean slashAcked;
 
     public CommandSenderImpl(ArmaCore core, JDACommandManager manager, SlashCommandInteractionEvent event) {
         super(manager, event);
@@ -127,11 +126,10 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
     private void sendAndPurge(Message message, MessageChannel channel, long purgeAfter) {
         // Slash Event Handling
         if (slashEvent != null && !slashEvent.getHook().isExpired()) {
-            if (!slashAcked)
+            if (!slashEvent.isAcknowledged())
                 slashEvent.getHook().sendMessage(message).queue();
             else
                 slashEvent.getHook().editOriginal(message).queue();
-            slashAcked = true;
             return;
         }
         if (channel.getType() == ChannelType.TEXT && !channel.canTalk()) {
