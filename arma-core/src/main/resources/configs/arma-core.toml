@@ -18,8 +18,6 @@ ownerIds = [118255810613608451]
 #A list of Snowflakes identified as developers of this bot
 #Used to handle commands executable by developers
 developerIds = [135923847147945985]
-#A set of prefixes used by the bot when the GuildConfig has not set any
-defaultPrefixes = ["!"]
 
 [database]
 #Should we enable and use database connections to save bot/guild data

@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -45,19 +46,43 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
                 return c.getIssuer().getGuild();
             }
         });
-        this.registerIssuerAwareContext(MessageChannel.class, c -> {
+        this.registerIssuerAwareContext(TextChannel.class, c -> {
             if (c.hasAnnotation(Author.class)) {
-                return c.getIssuer().getChannel();
+                return (TextChannel) c.getIssuer().getChannel();
             }
             boolean isCrossGuild = c.hasAnnotation(CrossGuild.class);
             String argument = c.popFirstArg(); // we pop because we are only issuer aware if we are annotated
-            MessageChannel channel = null;
+            TextChannel channel = null;
             if (argument.startsWith("<#")) {
                 String id = argument.substring(2, argument.length() - 1);
                 channel = isCrossGuild ? shardManager.getTextChannelById(id) : c.getIssuer().getGuild().getTextChannelById(id);
             } else {
                 List<TextChannel> channelList = isCrossGuild ? shardManager.getShards().stream().flatMap(jda -> jda.getTextChannelsByName(argument, true).stream()).collect(Collectors.toList()) :
                         c.getIssuer().getMessageEvent().getGuild().getTextChannelsByName(argument, true);
+                if (channelList.size() > 1) {
+                    throw new InvalidCommandArgument("Too many channels were found with the given name. Try with the `#channelname` syntax.", false);
+                } else if (channelList.size() == 1) {
+                    channel = channelList.get(0);
+                }
+            }
+            if (channel == null) {
+                throw new InvalidCommandArgument("Couldn't find a channel with that name or ID.");
+            }
+            return channel;
+        });
+        this.registerIssuerAwareContext(VoiceChannel.class, c -> {
+            if (c.hasAnnotation(Author.class)) {
+                return (VoiceChannel) c.getIssuer().getVoiceChannel();
+            }
+            boolean isCrossGuild = c.hasAnnotation(CrossGuild.class);
+            String argument = c.popFirstArg(); // we pop because we are only issuer aware if we are annotated
+            VoiceChannel channel = null;
+            if (argument.startsWith("<#")) {
+                String id = argument.substring(2, argument.length() - 1);
+                channel = isCrossGuild ? shardManager.getVoiceChannelById(id) : c.getIssuer().getGuild().getVoiceChannelById(id);
+            } else {
+                List<VoiceChannel> channelList = isCrossGuild ? shardManager.getShards().stream().flatMap(jda -> jda.getVoiceChannelsByName(argument, true).stream()).collect(Collectors.toList()) :
+                        c.getIssuer().getMessageEvent().getGuild().getVoiceChannelsByName(argument, true);
                 if (channelList.size() > 1) {
                     throw new InvalidCommandArgument("Too many channels were found with the given name. Try with the `#channelname` syntax.", false);
                 } else if (channelList.size() == 1) {

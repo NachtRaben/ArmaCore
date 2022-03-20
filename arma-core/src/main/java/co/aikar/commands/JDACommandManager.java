@@ -352,7 +352,7 @@ public class JDACommandManager extends ArmaCommandManager<
         if (!devCheck(event))
             return;
 
-        event.deferReply().setEphemeral(true).complete();
+        event.deferReply().setEphemeral(event.isFromGuild() && core.guildManager().getConfigFor(event.getGuild()).deleteCommandMessages()).complete();
 
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
@@ -368,7 +368,7 @@ public class JDACommandManager extends ArmaCommandManager<
                     rootCommand.execute(sender, cmd, finalArgs);
                     core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
                         if (!sender.isSlashAcked())
-                            sender.sendMessage("Success :heavy_check_mark");
+                            sender.sendMessage("Success :heavy_check_mark:");
                     }).delay(2, TimeUnit.SECONDS).schedule();
                 });
             }

@@ -43,14 +43,13 @@ dependencies {
     api 'co.aikar:acf-core:0.5.0-SNAPSHOT'
 
     // Config API Dependencies
-    api group: 'com.electronwill.night-config', name: 'toml', version: '3.6.3'
-    api group: 'com.electronwill.night-config', name: 'json', version: '3.6.3'
+    api 'com.electronwill.night-config:toml:3.6.4'
+    api 'com.electronwill.night-config:json:3.6.4'
 
     // Utilities
     api 'com.google.code.gson:gson:2.9.0'
     api "com.google.guava:guava:${guavaVersion}"
     api 'com.google.inject:guice:5.1.0'
-//    api group: 'org.reflections', name: 'reflections', version: '0.9.12'
 }
 
 jooq {

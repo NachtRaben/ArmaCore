@@ -174,7 +174,6 @@ public class ArmaCoreImpl extends VelocityManager implements ArmaCore {
             if (!armaConfig.getShards().isEmpty()) {
                 builder.setShards(armaConfig.getShards());
             }
-            eventManager.fire(builder).get();
             shardManager = (DefaultShardManager) builder.build();
         } catch (Exception e) {
             logger.error("Failed to connect to Discord", e);

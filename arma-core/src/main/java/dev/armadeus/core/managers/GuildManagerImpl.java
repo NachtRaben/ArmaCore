@@ -104,6 +104,7 @@ public class GuildManagerImpl implements GuildManager {
                 JSON json = JSON.json(jsonWriter.writeToString(config));
                 logger.info("Saving guild configuration for {}", guildId);
                 DSLContext c2 = DSL.using(conn, SQLDialect.POSTGRES);
+                c2.createDatabaseIfNotExists(Tables.GUILDS.getCatalog());
                 c2.insertInto(Tables.GUILDS)
                         .set(Tables.GUILDS.ID, guildId)
                         .set(Tables.GUILDS.CONFIG, json)
