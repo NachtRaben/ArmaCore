@@ -363,6 +363,7 @@ public class JDACommandManager extends ArmaCommandManager<
                 String[] finalArgs = args;
                 ForkJoinPool.commonPool().execute(() -> {
                     log.warn("{} executed slash command {} in {}", event.getUser().getName(), rootCommand.getCommandName() + " " + Strings.join(finalArgs, " "), event.isFromGuild() ? event.getGuild().getName() : "DMs");
+                    event.deferReply().queue();
                     rootCommand.execute(sender, cmd, finalArgs);
                     core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
                         if (!event.isAcknowledged())
