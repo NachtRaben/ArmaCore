@@ -35,8 +35,10 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
     public CommandSenderImpl(ArmaCore core, JDACommandManager manager, SlashCommandInteractionEvent event) {
         super(manager, event);
         this.core = core;
-        if (event.isFromGuild())
+        if (event.isFromGuild() && !event.getInteraction().isAcknowledged())
             event.deferReply(getGuildConfig().deleteCommandMessages()).queue();
+        else if (!event.getInteraction().isAcknowledged())
+            event.deferReply(false).queue();
     }
 
     public CommandSenderImpl(ArmaCore core, JDACommandManager manager, MessageReceivedEvent event) {
@@ -137,10 +139,9 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
         if (channel.getType() == ChannelType.TEXT && !channel.canTalk()) {
             sendPrivateMessage(message);
         }
-        long finalPurgeAfter = purgeAfter;
         channel.sendMessage(message).submit()
                 .thenAccept(m -> {
-                    queueMessagePurge(m, finalPurgeAfter);
+                    queueMessagePurge(m, purgeAfter);
                 })
                 .exceptionally(throwable -> {
                     if (channel.getType() == ChannelType.TEXT) {
