@@ -349,8 +349,6 @@ public class JDACommandManager extends ArmaCommandManager<
         if (!devCheck(event))
             return;
 
-        event.getHook().setEphemeral(event.isFromGuild() && core.guildManager().getConfigFor(event.getGuild()).deleteCommandMessages());
-
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
         if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
