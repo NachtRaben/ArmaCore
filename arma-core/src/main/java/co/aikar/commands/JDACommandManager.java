@@ -363,12 +363,11 @@ public class JDACommandManager extends ArmaCommandManager<
                 String[] finalArgs = args;
                 ForkJoinPool.commonPool().execute(() -> {
                     log.warn("{} executed slash command {} in {}", event.getUser().getName(), rootCommand.getCommandName() + " " + Strings.join(finalArgs, " "), event.isFromGuild() ? event.getGuild().getName() : "DMs");
-                    event.deferReply().queue();
                     rootCommand.execute(sender, cmd, finalArgs);
                     core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
-                        if (!event.isAcknowledged())
+                        if (!event.getInteraction().isAcknowledged())
                             sender.sendMessage("Success :heavy_check_mark:");
-                    }).delay(2, TimeUnit.SECONDS).schedule();
+                    }).delay(event.getHook().getExpirationTimestamp() - System.currentTimeMillis() + 1000, TimeUnit.MILLISECONDS).schedule();
                 });
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -412,7 +411,6 @@ public class JDACommandManager extends ArmaCommandManager<
         if (args.length > 1) {
             List<String> reprocessed = new ArrayList<>(Collections.singleton(args[0]));
             reprocessed.addAll(Arrays.stream(ACFPatterns.SPACE.split(msg.substring(prefixFound.length()).replace(args[0], ""), -1)).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
-            log.warn("Processed: {}", reprocessed);
         }
 
         args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];

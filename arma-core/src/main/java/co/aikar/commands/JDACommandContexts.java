@@ -58,7 +58,7 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
                 channel = isCrossGuild ? shardManager.getTextChannelById(id) : c.getIssuer().getGuild().getTextChannelById(id);
             } else {
                 List<TextChannel> channelList = isCrossGuild ? shardManager.getShards().stream().flatMap(jda -> jda.getTextChannelsByName(argument, true).stream()).collect(Collectors.toList()) :
-                        c.getIssuer().getMessageEvent().getGuild().getTextChannelsByName(argument, true);
+                        c.getIssuer().getGuild().getTextChannelsByName(argument, true);
                 if (channelList.size() > 1) {
                     throw new InvalidCommandArgument("Too many channels were found with the given name. Try with the `#channelname` syntax.", false);
                 } else if (channelList.size() == 1) {
@@ -82,7 +82,7 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
                 channel = isCrossGuild ? shardManager.getVoiceChannelById(id) : c.getIssuer().getGuild().getVoiceChannelById(id);
             } else {
                 List<VoiceChannel> channelList = isCrossGuild ? shardManager.getShards().stream().flatMap(jda -> jda.getVoiceChannelsByName(argument, true).stream()).collect(Collectors.toList()) :
-                        c.getIssuer().getMessageEvent().getGuild().getVoiceChannelsByName(argument, true);
+                        c.getIssuer().getGuild().getVoiceChannelsByName(argument, true);
                 if (channelList.size() > 1) {
                     throw new InvalidCommandArgument("Too many channels were found with the given name. Try with the `#channelname` syntax.", false);
                 } else if (channelList.size() == 1) {
