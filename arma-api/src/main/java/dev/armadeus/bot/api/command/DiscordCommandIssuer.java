@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
 
 public interface DiscordCommandIssuer extends CommandIssuer {
 
@@ -35,6 +36,8 @@ public interface DiscordCommandIssuer extends CommandIssuer {
     AudioChannel getVoiceChannel();
 
     JDA getJda();
+
+    GenericEvent getEvent();
 
     // Channel Agnostic Senders
     void sendMessage(String message);
