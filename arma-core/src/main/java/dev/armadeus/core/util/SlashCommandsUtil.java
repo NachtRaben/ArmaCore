@@ -11,8 +11,8 @@ import dev.armadeus.bot.api.util.StringUtils;
 import dev.armadeus.core.ArmaCoreImpl;
 import dev.armadeus.core.command.NullCommandIssuer;
 import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -122,7 +122,7 @@ public class SlashCommandsUtil {
             return OptionType.NUMBER;
         } else if (User.class.isAssignableFrom(type)) {
             return OptionType.USER;
-        } else if (MessageChannel.class.isAssignableFrom(type)) {
+        } else if (Channel.class.isAssignableFrom(type)) {
             return OptionType.CHANNEL;
         } else if (Role.class.isAssignableFrom(type)) {
             return OptionType.ROLE;
