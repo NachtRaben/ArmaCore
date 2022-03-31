@@ -56,6 +56,9 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
             if (argument.startsWith("<#")) {
                 String id = argument.substring(2, argument.length() - 1);
                 channel = isCrossGuild ? shardManager.getTextChannelById(id) : c.getIssuer().getGuild().getTextChannelById(id);
+            } else if (argument.matches("[0-9]+")) {
+                long id = Long.parseLong(argument);
+                channel = isCrossGuild ? shardManager.getTextChannelById(id) : c.getIssuer().getGuild().getTextChannelById(id);
             } else {
                 List<TextChannel> channelList = isCrossGuild ? shardManager.getShards().stream().flatMap(jda -> jda.getTextChannelsByName(argument, true).stream()).collect(Collectors.toList()) :
                         c.getIssuer().getGuild().getTextChannelsByName(argument, true);
@@ -79,6 +82,9 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
             VoiceChannel channel = null;
             if (argument.startsWith("<#")) {
                 String id = argument.substring(2, argument.length() - 1);
+                channel = isCrossGuild ? shardManager.getVoiceChannelById(id) : c.getIssuer().getGuild().getVoiceChannelById(id);
+            } else if (argument.matches("[0-9]+")) {
+                long id = Long.parseLong(argument);
                 channel = isCrossGuild ? shardManager.getVoiceChannelById(id) : c.getIssuer().getGuild().getVoiceChannelById(id);
             } else {
                 List<VoiceChannel> channelList = isCrossGuild ? shardManager.getShards().stream().flatMap(jda -> jda.getVoiceChannelsByName(argument, true).stream()).collect(Collectors.toList()) :
