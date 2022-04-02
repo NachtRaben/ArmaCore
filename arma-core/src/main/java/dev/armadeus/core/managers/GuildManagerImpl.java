@@ -49,6 +49,13 @@ public class GuildManagerImpl implements GuildManager {
     private Cache<Long, GuildConfig> cache;
     private Connection conn;
     private ScheduledTask saveFuture;
+    private static final URL defaultGuildConfigLocation = GuildManagerImpl.class.getClassLoader().getResource("configs/guild-config.toml");
+    private static final Config defaults = TomlFormat.instance().createParser().parse(defaultGuildConfigLocation);
+
+    @Override
+    public Config getDefaultConfig() {
+        return defaults;
+    }
 
     private final Function<Long, Config> loadDatabaseConfig = guildId -> {
         logger.info("Loading guild configuration {}", guildId);
@@ -125,10 +132,8 @@ public class GuildManagerImpl implements GuildManager {
     public GuildConfig getConfigFor(long guildId) {
         try {
             return cache.get(guildId, () -> {
-                URL defaultGuildConfigLocation = GuildManagerImpl.class.getClassLoader().getResource("configs/guild-config.toml");
                 assert defaultGuildConfigLocation != null;
                 checkNotNull(defaultGuildConfigLocation, "Default guild configuration does not exist");
-                Config defaults = TomlFormat.instance().createParser().parse(defaultGuildConfigLocation);
                 Config config;
                 if (core.shardManager().getGuildById(guildId) == null) { // Ephemeral "Fake" Configs
                     config = new NestedConfig(guildId, defaults);

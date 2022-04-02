@@ -8,4 +8,6 @@ public abstract class ArmaCommandManager<IT, I extends CommandIssuer, FT, MF ext
         extends CommandManager<IT, I, FT, MF, CEC, CC> {
 
     public abstract List<String> getAnnotationValues(AnnotatedElement object, Class<? extends Annotation> annoClass, int options);
+
+    public abstract void unregisterCommand(BaseCommand command);
 }

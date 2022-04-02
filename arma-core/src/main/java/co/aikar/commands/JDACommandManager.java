@@ -251,6 +251,7 @@ public class JDACommandManager extends ArmaCommandManager<
         return cmd;
     }
 
+    @Override
     public void unregisterCommand(BaseCommand command) {
         for (Map.Entry<String, RootCommand> entry : command.getRegisteredCommandsMap().entrySet()) {
             String jdaCommandName = entry.getKey().toLowerCase(Locale.ENGLISH);
