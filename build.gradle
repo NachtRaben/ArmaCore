@@ -33,6 +33,7 @@ allprojects {
         jdaVersion = '5.0.0-alpha.9'
         lavaplayerVersion = '1.3.76'
         groovyVersion = '3.0.9'
+        jdaDev = '6adee1e'
     }
 
     java {
@@ -58,6 +59,8 @@ allprojects {
             name = "NachtRaben-Nexus"
             url = "https://nachtraben.com/nexus/repository/maven-public/"
         }
+        // JDA Developmental
+        maven { url 'https://jitpack.io' }
         // JDA Dependencies
         maven { name 'm2-dv8tion'; url 'https://m2.dv8tion.net/releases' }
         // Aikar Dependencies

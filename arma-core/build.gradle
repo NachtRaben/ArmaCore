@@ -46,7 +46,7 @@ dependencies {
 
     // Utility
     api 'net.sf.jopt-simple:jopt-simple:5.0.4'// Command Line Args
-    api 'com.google.guava:guava:30.0-jre'
+    api 'com.google.guava:guava:31.1-jre'
 }
 
 shadowJar {
