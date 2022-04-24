@@ -365,7 +365,7 @@ public class JDACommandManager extends ArmaCommandManager<
                     rootCommand.execute(sender, cmd, finalArgs);
                     core.scheduler().buildTask(DummyPluginContainer.VELOCITY, () -> {
                         if (!event.getInteraction().isAcknowledged())
-                            sender.sendMessage("Success :heavy_check_mark:");
+                            log.error("Failed to respond to interaction hook in time");
                     }).delay(event.getHook().getExpirationTimestamp() - System.currentTimeMillis() + 1000, TimeUnit.MILLISECONDS).schedule();
                 });
             }
