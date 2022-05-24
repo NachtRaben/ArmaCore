@@ -215,7 +215,7 @@ public class JDACommandManager extends ArmaCommandManager<
         Class<? extends BaseCommand> self = command.getClass();
         if ( annotations.getAnnotationFromClass( self, DiscordPermission.class ) != null ) {
             DiscordPermission anno = annotations.getAnnotationFromClass(self, DiscordPermission.class);
-            String additional = Arrays.stream(anno.value()).map(p -> p.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "-")).collect(Collectors.joining(", "));
+            @SuppressWarnings("DuplicatedCode") String additional = Arrays.stream(anno.value()).map(p -> p.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "-")).collect(Collectors.joining(", "));
             if (command.permission == null || command.permission.isEmpty()) {
                 command.permission = additional;
             } else {
@@ -225,7 +225,7 @@ public class JDACommandManager extends ArmaCommandManager<
 
         command.onRegister(this);
 
-        for (Map.Entry<String, RootCommand> entry : command.getRegisteredCommandsMap().entrySet()) {
+        for (Map.Entry<String, RootCommand> entry : command.registeredCommands.entrySet()) {
             String commandName = entry.getKey().toLowerCase(Locale.ENGLISH);
             JDARootCommand cmd = (JDARootCommand) entry.getValue();
             if (!cmd.isRegistered) {
@@ -252,7 +252,7 @@ public class JDACommandManager extends ArmaCommandManager<
     }
 
     public void unregisterCommand(BaseCommand command) {
-        for (Map.Entry<String, RootCommand> entry : command.getRegisteredCommandsMap().entrySet()) {
+        for (Map.Entry<String, RootCommand> entry : command.registeredCommands.entrySet()) {
             String jdaCommandName = entry.getKey().toLowerCase(Locale.ENGLISH);
             JDARootCommand jdaCommand = (JDARootCommand) entry.getValue();
             jdaCommand.getSubCommands().values().removeAll(command.getSubCommands().values());
