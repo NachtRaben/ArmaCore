@@ -399,7 +399,7 @@ public class JDACommandManager extends ArmaCommandManager<
         if (args.length == 0) {
             return;
         }
-        log.warn("Args: {}", Arrays.toString(args));
+        log.warn("Args: {}", String.join("\n", args));
 
         String cmd = args[0].toLowerCase(Locale.ENGLISH);
         JDARootCommand rootCommand = this.commands.get(cmd);
