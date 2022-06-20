@@ -28,14 +28,22 @@ public class SlashCommands extends DiscordCommand {
 
     @Subcommand("publish")
     @Description("Publishes all commands to discord as slash commands")
-    public void importSlashCommands(DiscordCommandIssuer user) {
+    public void importSlashCommands(DiscordCommandIssuer user, boolean guildOnly) {
         SlashCommandsUtil util = new SlashCommandsUtil((ArmaCoreImpl) core);
         Collection<CommandDataImpl> generated = util.generateCommandData();
-        user.getJda().updateCommands().addCommands(generated).queue(
-                s -> user.sendMessage("Published %s commands globally", String.valueOf(generated.size())),
-                f -> {
-                    user.sendMessage("Failed to publish CommandData, %s", f.getMessage());
-                    logger.error("Failed to publish CommandData", f);
-                });
+        if (!guildOnly)
+            user.getJda().updateCommands().addCommands(generated).queue(
+                    s -> user.sendMessage("Published %s commands globally", String.valueOf(generated.size())),
+                    f -> {
+                        user.sendMessage("Failed to publish CommandData, %s", f.getMessage());
+                        logger.error("Failed to publish CommandData", f);
+                    });
+        else
+            user.getGuild().updateCommands().addCommands(generated).queue(
+                    s -> user.sendMessage("Published %s commands to %s", String.valueOf(generated.size()), user.getGuild().getName()),
+                    f -> {
+                        user.sendMessage("Failed to publish CommandData, %s", f.getMessage());
+                        logger.error("Failed to publish CommandData", f);
+                    });
     }
 }

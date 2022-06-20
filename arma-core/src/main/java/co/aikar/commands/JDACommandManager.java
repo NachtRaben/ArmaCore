@@ -399,6 +399,7 @@ public class JDACommandManager extends ArmaCommandManager<
         if (args.length == 0) {
             return;
         }
+        log.warn("Args: {}", Arrays.toString(args));
 
         String cmd = args[0].toLowerCase(Locale.ENGLISH);
         JDARootCommand rootCommand = this.commands.get(cmd);
@@ -409,6 +410,7 @@ public class JDACommandManager extends ArmaCommandManager<
         if (args.length > 1) {
             List<String> reprocessed = new ArrayList<>(Collections.singleton(args[0]));
             reprocessed.addAll(Arrays.stream(ACFPatterns.SPACE.split(msg.substring(prefixFound.length()).replace(args[0], ""), -1)).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
+            log.warn("Reprocessed: {}", reprocessed.toString());
         }
 
         args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
