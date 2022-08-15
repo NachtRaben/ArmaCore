@@ -22,9 +22,9 @@ shadowJar.classifier = ''
 
 dependencies {
     // Database Drivers
-    jooqGenerator 'org.postgresql:postgresql:42.3.2'
-    api 'org.postgresql:postgresql:42.3.2'
-    api 'org.jooq:jooq:3.16.4'
+    jooqGenerator 'org.postgresql:postgresql:42.3.6'
+    api 'org.postgresql:postgresql:42.3.6'
+    api 'org.jooq:jooq:3.17.2'
     api group: 'com.velocitypowered', name: 'velocity-utils-api', version: '4.0.0-SNAPSHOT', changing: true
 
     // Lombok
@@ -43,8 +43,8 @@ dependencies {
     api 'co.aikar:acf-core:0.5.0-SNAPSHOT'
 
     // Config API Dependencies
-    api 'com.electronwill.night-config:toml:3.6.4'
-    api 'com.electronwill.night-config:json:3.6.4'
+    api 'com.electronwill.night-config:toml:3.6.5'
+    api 'com.electronwill.night-config:json:3.6.5'
 
     // Utilities
     api 'com.google.code.gson:gson:2.9.0'

@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,6 +129,8 @@ public class SlashCommandsUtil {
             return OptionType.ROLE;
         } else if (IMentionable.class.isAssignableFrom(type)) {
             return OptionType.MENTIONABLE;
+        } else if (File.class.isAssignableFrom(type)) {
+            return OptionType.ATTACHMENT;
         } else {
             return OptionType.STRING;
         }

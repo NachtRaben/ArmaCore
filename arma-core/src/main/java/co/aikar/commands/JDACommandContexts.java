@@ -15,9 +15,14 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 // TODO: Message Keys !!!
@@ -154,6 +159,19 @@ public class JDACommandContexts extends CommandContexts<JDACommandExecutionConte
                 throw new InvalidCommandArgument("Could not find a role with that name or ID.");
             }
             return role;
+        });
+        this.registerIssuerAwareContext(File.class, c -> {
+            CompletableFuture<File> future = null;
+            if (c.getIssuer().getEvent() instanceof SlashCommandInteractionEvent e) {
+                future = e.getOptionsByType(OptionType.ATTACHMENT).stream().findFirst().orElseThrow(() -> new InvalidCommandArgument("No attachment")).getAsAttachment().downloadToFile();
+            } else if (c.getIssuer().getEvent() instanceof MessageReceivedEvent e) {
+                future = e.getMessage().getAttachments().stream().findFirst().orElseThrow(() -> new InvalidCommandArgument("No attachment")).downloadToFile();
+            }
+            try {
+                return Objects.requireNonNull(future).get(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                throw new InvalidCommandArgument("Unable to download attachment");
+            }
         });
     }
 }
