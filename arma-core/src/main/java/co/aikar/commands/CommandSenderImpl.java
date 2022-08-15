@@ -64,7 +64,7 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
             return;
 
         boolean purge = false;
-        if (message.isFromGuild() && message.getGuild().getSelfMember().hasPermission(message.getTextChannel(), Permission.MESSAGE_MANAGE))
+        if (message.isFromGuild() && message.getGuild().getSelfMember().hasPermission(message.getChannel().asTextChannel(), Permission.MESSAGE_MANAGE))
             purge = true;
         else if (message.getAuthor().equals(message.getJDA().getSelfUser()))
             purge = true;
