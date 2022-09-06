@@ -52,7 +52,6 @@ allprojects {
     compileJava.options.encoding = javadoc.options.encoding = "UTF-8"
 
     repositories {
-        mavenCentral()
         maven {
             name = "NachtRaben-Nexus"
             url = "https://mvn.armadeus.dev/repository/maven-public/"
@@ -63,6 +62,8 @@ allprojects {
         maven { name "Aikar"; url "https://repo.aikar.co/content/groups/aikar/" }
         // Lmbda
         maven { name "Sonatype"; url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        mavenCentral()
+
     }
 
     task sourcesJar(type: Jar, dependsOn: classes) {

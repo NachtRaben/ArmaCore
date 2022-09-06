@@ -22,7 +22,7 @@ pipeline {
         // Build the code and publish it if successful
         stage ('Build & Publish') {
             steps {
-                sh 'gradle shadowJar'
+                sh 'gradle clean shadowJar'
                 sh 'gradle :arma-api:publish'
             }
         }

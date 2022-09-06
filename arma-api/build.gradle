@@ -40,8 +40,7 @@ dependencies {
     }
 
     // Command API Dependencies
-    api 'co.aikar:acf-core:0.5.0-SNAPSHOT'
-
+    api group: 'co.aikar', name: 'acf-core', version: '0.5.0-SNAPSHOT', changing: true
     // Config API Dependencies
     api 'com.electronwill.night-config:toml:3.6.5'
     api 'com.electronwill.night-config:json:3.6.5'
