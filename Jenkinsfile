@@ -16,7 +16,7 @@ pipeline {
     // Tools to specify specific gradle/jdk/etc tools
     tools {
         gradle 'latest'
-        jdk 'JDK-17'
+        jdk 'latest'
     }
     stages {
         // Build the code and publish it if successful
