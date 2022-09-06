@@ -10,8 +10,8 @@ buildscript {
     apply from: "https://nachtraben.com/files/commons.gradle"
 
     ext {
-        nexusUser = System.getenv("NEXUS_USR") ?: loadProperty("nexus.nachtraben.user")
-        nexusPass = System.getenv("NEXUS_PSW") ?: loadProperty("nexus.nachtraben.pass")
+        nexusUser = System.getenv("NEXUS_USR") ?: loadProperty("nexus.armadeus.user")
+        nexusPass = System.getenv("NEXUS_PSW") ?: loadProperty("nexus.armadeus.pass")
         postgresUser = loadProperty("postgres.dev.armadeus.user")
         postgresPass = loadProperty("postgres.dev.armadeus.pass")
         postgresUrl = loadProperty("postgres.dev.armadeus.url")
@@ -55,7 +55,7 @@ allprojects {
         mavenCentral()
         maven {
             name = "NachtRaben-Nexus"
-            url = "https://nachtraben.com/nexus/repository/maven-public/"
+            url = "https://mvn.armadeus.dev/repository/maven-public/"
         }
         // JDA Dependencies
         maven { name 'm2-dv8tion'; url 'https://m2.dv8tion.net/releases' }
