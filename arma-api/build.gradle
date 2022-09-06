@@ -93,9 +93,9 @@ publishing {
                     password "$nexusPass"
                 }
                 if (!project.version.endsWith('-SNAPSHOT')) {
-                    url "https://nachtraben.com/nexus/repository/maven-releases"
+                    url "https://mvn.armadeus.dev/repository/maven-releases"
                 } else {
-                    url "https://nachtraben.com/nexus/repository/maven-snapshots"
+                    url "https://mvn.armadeus.dev/repository/maven-snapshots"
                 }
             }
         }
