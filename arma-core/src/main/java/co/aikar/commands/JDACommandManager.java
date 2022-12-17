@@ -15,10 +15,10 @@ import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -327,7 +327,7 @@ public class JDACommandManager extends ArmaCommandManager<
     }
 
     void dispatchSlash(SlashCommandInteractionEvent event) {
-        List<String> largs = new ArrayList<>(List.of(event.getCommandPath().split("/")));
+        List<String> largs = new ArrayList<>(List.of(event.getCommandString().substring(1).split(" ")));
         for (OptionMapping option : event.getOptions()) {
             largs.add(option.getAsString());
         }

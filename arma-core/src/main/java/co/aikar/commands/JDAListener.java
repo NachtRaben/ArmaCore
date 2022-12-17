@@ -1,10 +1,10 @@
 package co.aikar.commands;
 
 import com.velocitypowered.api.event.Subscribe;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 
 public class JDAListener {
 

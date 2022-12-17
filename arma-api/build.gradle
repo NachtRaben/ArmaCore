@@ -22,9 +22,9 @@ shadowJar.classifier = ''
 
 dependencies {
     // Database Drivers
-    jooqGenerator 'org.postgresql:postgresql:42.3.6'
-    api 'org.postgresql:postgresql:42.3.6'
-    api 'org.jooq:jooq:3.17.2'
+    jooqGenerator 'org.postgresql:postgresql:42.5.0'
+    api 'org.postgresql:postgresql:42.5.0'
+    api 'org.jooq:jooq:3.17.3'
     api group: 'com.velocitypowered', name: 'velocity-utils-api', version: '4.0.0-SNAPSHOT', changing: true
 
     // Lombok

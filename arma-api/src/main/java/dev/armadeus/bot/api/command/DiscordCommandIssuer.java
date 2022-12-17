@@ -3,14 +3,15 @@ package dev.armadeus.bot.api.command;
 import co.aikar.commands.CommandIssuer;
 import dev.armadeus.bot.api.config.GuildConfig;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public interface DiscordCommandIssuer extends CommandIssuer {
 
@@ -47,9 +48,9 @@ public interface DiscordCommandIssuer extends CommandIssuer {
 
     void sendMessage(MessageEmbed embed, long purgeAfter);
 
-    void sendMessage(Message message);
+    void sendMessage(MessageCreateData message);
 
-    void sendMessage(Message message, long purgeAfter);
+    void sendMessage(MessageCreateData message, long purgeAfter);
 
     void queueMessagePurge(Message message, long purgeAfter);
 
@@ -60,5 +61,5 @@ public interface DiscordCommandIssuer extends CommandIssuer {
 
     void sendPrivateMessage(MessageEmbed embed);
 
-    void sendPrivateMessage(Message message);
+    void sendPrivateMessage(MessageCreateData message);
 }

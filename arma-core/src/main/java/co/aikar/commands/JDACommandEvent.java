@@ -1,18 +1,20 @@
 package co.aikar.commands;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.AudioChannel;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -80,8 +82,8 @@ public class JDACommandEvent implements CommandIssuer {
         getChannel().sendMessage(message).queue();
     }
 
-    public void sendMessage(Message message) {
-        getChannel().sendMessage(message).queue();
+    public void sendMessage(MessageCreateData message) {
+        getChannel().asTextChannel().sendMessage(message).queue();
     }
 
     public void sendMessage(MessageEmbed message) {
@@ -99,7 +101,7 @@ public class JDACommandEvent implements CommandIssuer {
     }
 
     // Ambiguous
-    public MessageChannel getChannel() {
+    public MessageChannelUnion getChannel() {
         return messageEvent != null ? messageEvent.getChannel() : slashEvent != null ? slashEvent.getChannel() : null;
     }
 

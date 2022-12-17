@@ -6,14 +6,15 @@ import dev.armadeus.bot.api.config.GuildConfig;
 import dev.armadeus.bot.api.util.DiscordReference;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -87,53 +88,55 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
 
     public void sendMessage(String message, long purgeAfter) {
         checkArgument(message != null && !message.isBlank(), "Empty Message");
-        MessageBuilder builder = new MessageBuilder(message);
-        sendMessage(builder.build(), purgeAfter);
+        MessageCreateData builder = MessageCreateData.fromContent(message);
+        sendMessage(builder, purgeAfter);
     }
 
     public void sendMessage(MessageEmbed embed, long purgeAfter) {
         checkArgument(embed != null && embed.isSendable(), "Empty Message");
-        MessageBuilder builder = new MessageBuilder(embed);
-        sendMessage(builder.build(), purgeAfter);
+        MessageCreateData builder = MessageCreateData.fromEmbeds(embed);
+        sendMessage(builder, purgeAfter);
     }
 
-    public void sendMessage(Message message, long purgeAfter) {
+    public void sendMessage(MessageCreateData message, long purgeAfter) {
         sendAndPurge(message, getChannel(), purgeAfter);
     }
 
     // Private Messages
     public void sendPrivateMessage(String message) {
         checkArgument(message != null && !message.isBlank(), "Empty Message");
-        MessageBuilder builder = new MessageBuilder(message);
-        sendPrivateMessage(builder.build());
+        MessageCreateData builder = MessageCreateData.fromContent(message);
+        sendPrivateMessage(builder);
     }
 
     public void sendPrivateMessage(String format, Object... args) {
         String message = String.format(format, args);
         checkArgument(message != null && !message.isBlank(), "Empty Message");
-        MessageBuilder builder = new MessageBuilder(message);
-        sendPrivateMessage(builder.build());
+        MessageCreateData builder = MessageCreateData.fromContent(message);
+        sendPrivateMessage(builder);
     }
 
     public void sendPrivateMessage(MessageEmbed embed) {
         checkArgument(embed != null && embed.isSendable(), "Empty Message");
-        MessageBuilder builder = new MessageBuilder(embed);
-        sendPrivateMessage(builder.build());
+        MessageCreateData builder = MessageCreateData.fromEmbeds(embed);
+        sendPrivateMessage(builder);
     }
 
-    public void sendPrivateMessage(Message message) {
+    public void sendPrivateMessage(MessageCreateData message) {
         getUser().openPrivateChannel().queue(channel -> {
             sendAndPurge(message, channel, -1);
         });
     }
 
-    private void sendAndPurge(Message message, MessageChannel channel, long purgeAfter) {
+    private void sendAndPurge(MessageCreateData message, MessageChannel channel, long purgeAfter) {
         // Slash Event Handling
         if (slashEvent != null && !slashEvent.getHook().isExpired()) {
             if (!slashEvent.isAcknowledged())
                 slashEvent.getHook().sendMessage(message).queue();
-            else
-                slashEvent.getHook().editOriginal(message).queue();
+            else {
+                MessageEditData editor = MessageEditData.fromCreateData(message);
+                slashEvent.getHook().editOriginal(editor).queue();
+            }
             return;
         }
         if (channel.getType() == ChannelType.TEXT && !channel.canTalk()) {
@@ -163,7 +166,7 @@ public class CommandSenderImpl extends JDACommandEvent implements DiscordCommand
         sendMessage(message, 0);
     }
 
-    public void sendMessage(Message message) {
+    public void sendMessage(MessageCreateData message) {
         sendMessage(message, 0);
     }
 

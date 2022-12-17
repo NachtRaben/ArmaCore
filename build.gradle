@@ -30,7 +30,7 @@ allprojects {
         slf4jVersion = '1.7.36'
         log4jVersion = '2.18.0'
         guavaVersion = '31.1-jre'
-        jdaVersion = '5.0.0-alpha.17'
+        jdaVersion = '5.0.0-beta.2'
         groovyVersion = '3.0.12'
     }
 
