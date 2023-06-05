@@ -23,8 +23,10 @@ shadowJar {
 }
 
 dependencies {
+    implementation project(path: ':arma-api')
+    implementation project(path: ':arma-api')
     // Jooq
-    jooqGenerator 'org.postgresql:postgresql:42.3.6'
+    jooqGenerator 'org.postgresql:postgresql:42.3.8'
     // Lombok
     compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
@@ -46,7 +48,7 @@ dependencies {
 
     // Utility
     api 'net.sf.jopt-simple:jopt-simple:5.0.4'// Command Line Args
-    api 'com.google.guava:guava:31.1-jre'
+    api "com.google.guava:guava:${guavaVersion}"
 }
 
 shadowJar {

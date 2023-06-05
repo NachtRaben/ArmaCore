@@ -24,6 +24,6 @@ dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-    implementation 'com.sparkjava:spark-core:2.9.3'
+    implementation 'com.sparkjava:spark-core:2.9.4'
 }
 

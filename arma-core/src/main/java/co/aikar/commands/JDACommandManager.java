@@ -12,7 +12,6 @@ import dev.armadeus.core.ArmaCoreImpl;
 import dev.armadeus.core.command.NullCommandIssuer;
 import joptsimple.internal.Strings;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
 import net.dv8tion.jda.api.entities.Guild;
@@ -63,30 +62,30 @@ public class JDACommandManager extends ArmaCommandManager<
     private Set<Long> botOwner = new HashSet<>();
 
     // TODO: Replace internal call.
-    private void permissionDenied( DiscordCommandIssuer issuer ) {
-        if ( issuer.getUser() == null ) return;
+    private void permissionDenied(DiscordCommandIssuer issuer) {
+        if (issuer.getUser() == null) return;
         Member member = issuer.getMember();
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setColor( Color.RED );
-        embed.setTitle( "Error Preforming Command." );
-        embed.addField( "Permission Denied.", "", false );
-        embed.setFooter( issuer.getUser().getAsTag(), issuer.getUser().getEffectiveAvatarUrl() );
+        embed.setColor(Color.RED);
+        embed.setTitle("Error Preforming Command.");
+        embed.addField("Permission Denied.", "", false);
+        embed.setFooter(issuer.getUser().getAsTag(), issuer.getUser().getEffectiveAvatarUrl());
 
-        if ( member != null ) {
-            embed.setAuthor( member.getGuild().getName() );
-            embed.setThumbnail( member.getGuild().getIconUrl() );
+        if (member != null) {
+            embed.setAuthor(member.getGuild().getName());
+            embed.setThumbnail(member.getGuild().getIconUrl());
         } else {
-            embed.setAuthor( issuer.getUser().getAsTag() );
+            embed.setAuthor(issuer.getUser().getAsTag());
         }
 
         issuer.sendMessage(embed.build());
     }
 
-    private boolean issuerPermissionDenied( CommandIssuer issuer, JDARootCommand rootCommand, String commandLabel, String[] args ) {
-        var foundCommand = rootCommand.findSubCommand( commandLabel, args );
-        if ( foundCommand != null ) return !foundCommand.hasPermission( issuer );
-        return !rootCommand.getDefCommand().hasPermission( issuer );
+    private boolean issuerPermissionDenied(CommandIssuer issuer, JDARootCommand rootCommand, String commandLabel, String[] args) {
+        var foundCommand = rootCommand.findSubCommand(commandLabel, args);
+        if (foundCommand != null) return !foundCommand.hasPermission(issuer);
+        return !rootCommand.getDefCommand().hasPermission(issuer);
     }
 
     public JDACommandManager(ArmaCoreImpl core) {
@@ -137,16 +136,12 @@ public class JDACommandManager extends ArmaCommandManager<
 
     void initializeBotOwner() {
         if (botOwner.isEmpty()) {
-            if (shardManager.getShards().get(0).getAccountType() == AccountType.BOT) {
-                ApplicationInfo app = shardManager.retrieveApplicationInfo().complete();
-                if (app.getTeam() != null) {
-                    botOwner.add(app.getTeam().getOwnerIdLong());
-                    botOwner.addAll(app.getTeam().getMembers().stream().map(m -> m.getUser().getIdLong()).collect(Collectors.toList()));
-                } else {
-                    botOwner.add(shardManager.retrieveApplicationInfo().complete().getOwner().getIdLong());
-                }
+            ApplicationInfo app = shardManager.retrieveApplicationInfo().complete();
+            if (app.getTeam() != null) {
+                botOwner.add(app.getTeam().getOwnerIdLong());
+                botOwner.addAll(app.getTeam().getMembers().stream().map(m -> m.getUser().getIdLong()).toList());
             } else {
-                botOwner.add(shardManager.getShards().get(0).getSelfUser().getIdLong());
+                botOwner.add(shardManager.retrieveApplicationInfo().complete().getOwner().getIdLong());
             }
         }
     }
@@ -213,7 +208,7 @@ public class JDACommandManager extends ArmaCommandManager<
         // Process annotations first
         Annotations annotations = getAnnotations();
         Class<? extends BaseCommand> self = command.getClass();
-        if ( annotations.getAnnotationFromClass( self, DiscordPermission.class ) != null ) {
+        if (annotations.getAnnotationFromClass(self, DiscordPermission.class) != null) {
             DiscordPermission anno = annotations.getAnnotationFromClass(self, DiscordPermission.class);
             @SuppressWarnings("DuplicatedCode") String additional = Arrays.stream(anno.value()).map(p -> p.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "-")).collect(Collectors.joining(", "));
             if (command.permission == null || command.permission.isEmpty()) {
@@ -351,8 +346,8 @@ public class JDACommandManager extends ArmaCommandManager<
 
         CommandSenderImpl sender = (CommandSenderImpl) this.getCommandIssuer(event);
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
-        if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
-            permissionDenied( issuer );
+        if (issuerPermissionDenied(issuer, rootCommand, cmd, args)) {
+            permissionDenied(issuer);
             return;
         }
 
@@ -418,8 +413,8 @@ public class JDACommandManager extends ArmaCommandManager<
             return;
 
         DiscordCommandIssuer issuer = (DiscordCommandIssuer) this.getCommandIssuer(event);
-        if ( issuerPermissionDenied( issuer, rootCommand, cmd, args ) ) {
-            permissionDenied( issuer );
+        if (issuerPermissionDenied(issuer, rootCommand, cmd, args)) {
+            permissionDenied(issuer);
             return;
         }
 

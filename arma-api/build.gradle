@@ -22,8 +22,8 @@ shadowJar.classifier = ''
 
 dependencies {
     // Database Drivers
-    jooqGenerator 'org.postgresql:postgresql:42.5.0'
-    api 'org.postgresql:postgresql:42.5.0'
+    jooqGenerator 'org.postgresql:postgresql:42.5.1'
+    api 'org.postgresql:postgresql:42.5.1'
     api 'org.jooq:jooq:3.17.3'
     api group: 'com.velocitypowered', name: 'velocity-utils-api', version: '4.0.0-SNAPSHOT', changing: true
 
@@ -42,13 +42,13 @@ dependencies {
     // Command API Dependencies
     api group: 'co.aikar', name: 'acf-core', version: '0.5.0-SNAPSHOT', changing: true
     // Config API Dependencies
-    api 'com.electronwill.night-config:toml:3.6.5'
-    api 'com.electronwill.night-config:json:3.6.5'
+    api 'com.electronwill.night-config:toml:3.6.6'
+    api 'com.electronwill.night-config:json:3.6.6'
 
     // Utilities
-    api 'com.google.code.gson:gson:2.9.0'
+    api 'com.google.code.gson:gson:2.10.1'
     api "com.google.guava:guava:${guavaVersion}"
-    api 'com.google.inject:guice:5.1.0'
+    api 'com.google.inject:guice:7.0.0'
 }
 
 jooq {
